@@ -15,7 +15,6 @@ import socket
 PARAMS={}
 METRICS={}
 LAST_METRICS={}
-METRICS_CACHE_MAX=5
 thishost=socket.gethostname()
 
 cmd1="/usr/bin/asinfo -h "
