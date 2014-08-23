@@ -1,0 +1,17 @@
+Aerospike
+
+python module for Ganglia 3.1
+
+This python module calls the native asinfo utility within Aerospike
+and parses metric results based upon whatever you add.  I created this
+as I was unable to find anything similar online for Aerospike and
+while we use the Aerospike dashboard, we also like to trend specific 
+items alongside our system metrics within Ganglia. 
+
+This can no doubt be improved so feel free to do so.
+
+Author
+Dave Carroll
+dcarrollno@gmail.com
+
+
