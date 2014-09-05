@@ -4,6 +4,8 @@
     Aerospike using Ganglia.  The Aerospike dashboard
     is nice but we do like to trend over time in Ganglia.
 
+    see: https://github.com/dcarrollno/Ganglia-Modules 
+
     DC, 8/2014 """
 
 import os
@@ -13,14 +15,13 @@ import copy
 import socket
 
 PARAMS={}
-METRICS={}
-LAST_METRICS={}
-thishost=socket.gethostname()
-curr_time=time.time()
-last_time=0
-ascache=5
+METRICS={}			# metrics
+LAST_METRICS={}			# last metrics
+thishost=socket.gethostname()	# hostname
+curr_time=time.time()		# current time
+last_time=0			# last update
+ascache=5			# metric cache time
 
-debug=''	# Future option 
 
 cmd1="/usr/bin/asinfo -h "
 cmd2=" -v statistics"
@@ -52,6 +53,7 @@ def get_delta(name):
 
     [curr_metrics,curr_time]=get_metrics()
     if LAST_METRICS:
+      '''Check the cache and prime it if not ready '''
       #print("Not Empty")
       next
     else:
@@ -118,7 +120,7 @@ def metric_init(params):
         'groups': 'Aerospike',
         },
 
-       {'name': 'stat_read_errs_notfound',
+        {'name': 'stat_read_errs_notfound',
         'call_back': get_delta,
         'time_max': 60,
         'value_type': 'uint',
@@ -151,6 +153,17 @@ def metric_init(params):
         'groups': 'Aerospike',
         },
 
+        {'name': 'stat_write_errs_other',
+        'call_back': get_delta,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units': 'write_errs_other',
+        'slope': 'positive',
+        'format': '%u',
+        'description': 'Write Errors Other',
+        'groups': 'Aerospike',
+        },
+
         {'name': 'stat_delete_success',
         'call_back': get_delta,
         'time_max': 60,
@@ -162,7 +175,7 @@ def metric_init(params):
         'groups': 'Aerospike',
         },
 
-     {'name': 'transactions',
+        {'name': 'transactions',
         'call_back': get_delta,
         'time_max': 60,
         'value_type': 'uint',
@@ -173,7 +186,7 @@ def metric_init(params):
         'groups': 'Aerospike',
         },
 
-     {'name': 'used-bytes-memory',
+        {'name': 'used-bytes-memory',
         'call_back': get_delta,
         'time_max': 60,
         'value_type': 'uint',
@@ -184,7 +197,29 @@ def metric_init(params):
         'groups': 'Aerospike',
         },
 
-     {'name': 'used-bytes-disk',
+        {'name': 'data-used-bytes-memory',
+        'call_back': get_delta,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units': 'data-used-bytes-memory',
+        'slope': 'both',
+        'format': '%u',
+        'description': 'Data Used Bytes Memory',
+        'groups': 'Aerospike',
+        },
+
+        {'name': 'index-used-bytes-memory',
+        'call_back': get_delta,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units': 'index-used-bytes-memory',
+        'slope': 'both',
+        'format': '%u',
+        'description': 'Index Used Bytes Memory',
+        'groups': 'Aerospike',
+        },
+
+        {'name': 'used-bytes-disk',
         'call_back': get_delta,
         'time_max': 60,
         'value_type': 'uint',
@@ -195,7 +230,7 @@ def metric_init(params):
         'groups': 'Aerospike',
         },
 
-     {'name': 'stat_evicted_objects',
+        {'name': 'stat_evicted_objects',
         'call_back': get_delta,
         'time_max': 60,
         'value_type': 'uint',
@@ -217,7 +252,7 @@ def metric_init(params):
         'groups': 'Aerospike',
         },
 
-     {'name': 'objects',
+        {'name': 'objects',
         'call_back': get_delta,
         'time_max': 60,
         'value_type': 'uint',
@@ -228,7 +263,7 @@ def metric_init(params):
         'groups': 'Aerospike',
         },
 
-     {'name': 'stat_rw_timeout',
+        {'name': 'stat_rw_timeout',
         'call_back': get_delta,
         'time_max': 60,
         'value_type': 'uint',
@@ -238,7 +273,6 @@ def metric_init(params):
         'description': 'ReadWrite TimeOut',
         'groups': 'Aerospike',
         }]
-
 
     return(descriptors)
 

@@ -9,69 +9,84 @@ collection_group {
   collect_every = 15 
   time_threshold = 40
 
-  metric {
+    metric {
     name = "client_connections"
     title = "Client Connections"
     value_threshold = 0
-  }
-  metric {
+    }
+    metric {
     name = "stat_read_reqs"
     title = "Read Requests"
     value_threshold = 0
-  }
-  metric {
+    }
+    metric {
     name = "stat_read_success"
     title = "Read Success"
     value_threshold = 0
-  }
- metric {
+    }
+    metric {
     name = "stat_read_errs_notfound"
     title = "Read Errors Not Found"
-   value_threshold =0
- }
-  metric {
+    value_threshold =0
+    }
+    metric {
     name = "stat_write_reqs"
     title= "Write Requests"
     value_threshold = 0
-  }
-  metric {
+    }
+    metric {
     name = "stat_write_success"
     title = "Write Success"
     value_threshold = 0
-  }
-  metric {
+    }
+    metric {
+    name = "stat_write_errs_other"
+    title = "Write Errors Other"
+    value_threshold = 0
+    }
+    metric {
     name = "transactions"
     title= "Transactions"
     value_threshold = 0
-  }
-  metric {
+    }
+    metric {
     name = "used-bytes-memory"
     title= "Used Bytes Memory"
     value_threshold = 0
-  }
-  metric {
+    }
+    metric {
+    name = "data-used-bytes-memory"
+    title = "Data Used Bytes Memory"
+    value_threshold = 0
+    }
+    metric {
+    name = "index-used-bytes-memory"
+    title = "Index Used Bytes Memory"
+    value_threshold = 0
+    }
+    metric {
     name = "used-bytes-disk"
     title = "Used Bytes Disk"
     value_threshold = 0
-  }
-  metric {
+    }
+    metric {
     name = "stat_evicted_objects"
     title= "Evicted Objects"
     value_threshold = 0
-  }
-  metric {
-     name = "stat_expired_objects"
-     title = "Expired Objects"
+    }
+    metric {
+    name = "stat_expired_objects"
+    title = "Expired Objects"
     value_threshold = 0
-  }
-  metric {
+    }
+    metric {
     name = "objects"
     title = "Objects"
     value_threshold = 0
-  }
-  metric {
+    }
+    metric {
     name = "stat_rw_timeout"
     title= "Read/Write TimeOut"
     value_threshold = 0
+    }
   }
-}
