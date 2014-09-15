@@ -45,6 +45,7 @@ def get_metrics():
             METRICS[k]= v
 	    curr_time=time.time()
             last_time=time.time()
+      stat = p.close()
     return (METRICS,curr_time)
 
 def get_delta(name):
@@ -103,7 +104,7 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'read_reqs',
-        'slope': 'positive',  # was positive
+        'slope': 'positive', 
         'format': '%u',
         'description': 'Read Reqs',
         'groups': 'Aerospike',
