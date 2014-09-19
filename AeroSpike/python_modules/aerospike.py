@@ -15,12 +15,12 @@ import copy
 import socket
 
 PARAMS={}
-METRICS={}			# metrics
-LAST_METRICS={}			# last metrics
-thishost=socket.gethostname()	# hostname
-curr_time=time.time()		# current time
-last_time=0			# last update
-ascache=5			# metric cache time
+METRICS={}			  # metrics
+LAST_METRICS={}			  # last metrics
+thishost=socket.gethostname()	  # hostname
+curr_time=time.time()	          # current time
+last_time=0		          # last update
+ascache=5			  # metric cache time
 
 
 cmd1="/usr/bin/asinfo -h "
@@ -43,9 +43,9 @@ def get_metrics():
             parts=re.match('(\S+)=(\d+)',item).groups()
             k,v=parts[0], int(parts[1])
             METRICS[k]= v
-	    curr_time=time.time()
+            curr_time=time.time()
             last_time=time.time()
-      stat = p.close()
+      stat=p.close()
     return (METRICS,curr_time)
 
 def get_delta(name):
@@ -55,7 +55,6 @@ def get_delta(name):
     [curr_metrics,curr_time]=get_metrics()
     if LAST_METRICS:
       '''Check the cache and prime it if not ready '''
-      #print("Not Empty")
       next
     else:
       #print ("Empty - adding to cache")
@@ -81,7 +80,7 @@ def get_delta(name):
            # v += 4294967296
           #d1 = int(v - LAST_METRICS.get(k,0)/curr_time - last_time)
 	  d1 = int(v - LAST_METRICS.get(k,0))
-	  print "Delta is: %d" % d1
+	  #print "Delta is: %d" % d1
           return int(v)
 
 def metric_init(params):
@@ -95,7 +94,7 @@ def metric_init(params):
         'units': 'clients',
         'slope': 'both',
         'format': '%u',
-        'description': 'Client Connections',
+        'description': 'If client_connections are at or near proto_fd_max configuration value then Aerospike may soon or currently is unable to accept new connections.',
         'groups': 'Aerospike',
         },
 
@@ -106,7 +105,7 @@ def metric_init(params):
         'units': 'read_reqs',
         'slope': 'positive', 
         'format': '%u',
-        'description': 'Read Reqs',
+        'description': 'The number of read requests over a 15 second time period',
         'groups': 'Aerospike',
         },
 
@@ -117,7 +116,7 @@ def metric_init(params):
         'units': 'read_success',
         'slope': 'positive',
         'format': '%u',
-        'description': 'Read req success',
+        'description': 'The number of read successes over a 15 second time period.',
         'groups': 'Aerospike',
         },
 
@@ -128,7 +127,7 @@ def metric_init(params):
         'units': 'read_notfound',
         'slope': 'positive',
         'format': '%u',
-        'description': 'Read Err Not Found',
+        'description': 'The number of times a read request resulted in a not found response',
         'groups': 'Aerospike',
         },
 
@@ -139,7 +138,7 @@ def metric_init(params):
         'units': 'write_reqs',
         'slope': 'positive',
         'format': '%u',
-        'description': 'Write reqs',
+        'description': 'The number of client write requests over a 15 second period',
         'groups': 'Aerospike',
         },
 
@@ -150,7 +149,7 @@ def metric_init(params):
         'units': 'write_success',
         'slope': 'positive',
         'format': '%u',
-        'description': 'Write Success',
+        'description': 'The nummber of write successes over a 15 second period.',
         'groups': 'Aerospike',
         },
 
@@ -161,7 +160,7 @@ def metric_init(params):
         'units': 'write_errs_other',
         'slope': 'positive',
         'format': '%u',
-        'description': 'Write Errors Other',
+        'description': 'The number of write errors. This should be close to zero.',
         'groups': 'Aerospike',
         },
 
@@ -172,7 +171,7 @@ def metric_init(params):
         'units': 'delete_success',
         'slope': 'positive',
         'format': '%u',
-        'description': 'Delete Success',
+        'description': 'The number of successful delete requests',
         'groups': 'Aerospike',
         },
 
@@ -183,7 +182,7 @@ def metric_init(params):
         'units': 'transactions',
         'slope': 'positive',
         'format': '%u',
-        'description': 'Transactions',
+        'description': 'The total number of transactions over a 15 second period.',
         'groups': 'Aerospike',
         },
 
@@ -194,7 +193,7 @@ def metric_init(params):
         'units': 'used-bytes-memory',
         'slope': 'both',
         'format': '%u',
-        'description': 'Used Bytes Memory',
+        'description': 'Trending used-bytes-memory provides operations insight into how memory usage changes over time for this namespace.',
         'groups': 'Aerospike',
         },
 
@@ -205,7 +204,7 @@ def metric_init(params):
         'units': 'data-used-bytes-memory',
         'slope': 'both',
         'format': '%u',
-        'description': 'Data Used Bytes Memory',
+        'description': 'The amount of memory used for data, only if we are serving out of memory vs disk. For RTB we are using on-disk.',
         'groups': 'Aerospike',
         },
 
@@ -216,7 +215,7 @@ def metric_init(params):
         'units': 'index-used-bytes-memory',
         'slope': 'both',
         'format': '%u',
-        'description': 'Index Used Bytes Memory',
+        'description': 'The amount of memory the index is using',
         'groups': 'Aerospike',
         },
 
@@ -227,7 +226,7 @@ def metric_init(params):
         'units': 'used-bytes-disk',
         'slope': 'both',
         'format': '%u',
-        'description': 'Used Bytes Disk',
+        'description': 'Trending used-bytes-disk provides operations insight into how disk usage changes over time for this namespace.',
         'groups': 'Aerospike',
         },
 
@@ -238,7 +237,7 @@ def metric_init(params):
         'units': 'evictions',
         'slope': 'positive',
         'format': '%u',
-        'description': 'Evicted Objects',
+        'description': 'Trending stat_evicted_objects provides operations insight into system eviction behavior over time.',
         'groups': 'Aerospike',
         },
 
@@ -249,7 +248,7 @@ def metric_init(params):
         'units': 'expired',
         'slope': 'positive',
         'format': '%u',
-        'description': 'Expired Objects',
+        'description': 'Trending stat_expired_objects provides operations insight into system expiration behavior over time.',
         'groups': 'Aerospike',
         },
 
@@ -260,7 +259,7 @@ def metric_init(params):
         'units':'objects',
         'slope': 'both',
         'format': '%u',
-        'description': 'Objects',
+        'description': 'Trending objects provides operations insight into object fluctuations over time',
         'groups': 'Aerospike',
         },
 
@@ -271,7 +270,7 @@ def metric_init(params):
         'units': 'ReadWrite TimeOut',
         'slope': 'positive',
         'format': '%u',
-        'description': 'ReadWrite TimeOut',
+        'description': 'The number of read/write timeouts over a 15 second period. This should be close to zero at all times.',
         'groups': 'Aerospike',
         }]
 
