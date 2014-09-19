@@ -70,6 +70,16 @@ collection_group {
     value_threshold = 0
     }
     metric {
+    name = "free-pct-disk"
+    title = "Free Raw Device %"
+    value_threshold = 0
+    }
+    metric {
+    name = "free-pct-memory"
+    title = "Free Memory %"
+    value_threshold = 0
+    }
+    metric {
     name = "stat_evicted_objects"
     title= "Evicted Objects"
     value_threshold = 0

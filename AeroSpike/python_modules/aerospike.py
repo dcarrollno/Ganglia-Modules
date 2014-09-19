@@ -94,7 +94,7 @@ def metric_init(params):
         'units': 'clients',
         'slope': 'both',
         'format': '%u',
-        'description': 'If client_connections are at or near proto_fd_max configuration value then Aerospike may soon or currently is unable to accept new connections.',
+        'description': 'If client_connections are at or near proto_fd_max configuration value then Aerospike may soon or currently is unable to accept new connections. We set proto_fd_max to 15000 at Nanigans.',
         'groups': 'Aerospike',
         },
 
@@ -182,7 +182,7 @@ def metric_init(params):
         'units': 'transactions',
         'slope': 'positive',
         'format': '%u',
-        'description': 'The total number of transactions over a 15 second period.',
+        'description': 'The total number of transactions over a 15 second period. Includes all reads, writes and info requests',
         'groups': 'Aerospike',
         },
 
@@ -237,7 +237,7 @@ def metric_init(params):
         'units': 'evictions',
         'slope': 'positive',
         'format': '%u',
-        'description': 'Trending stat_evicted_objects provides operations insight into system eviction behavior over time.',
+        'description': 'We evict non-zero TTL data if we reach 50% of available storage or 60% of 60GB memory.',
         'groups': 'Aerospike',
         },
 
@@ -262,6 +262,28 @@ def metric_init(params):
         'description': 'Trending objects provides operations insight into object fluctuations over time',
         'groups': 'Aerospike',
         },
+  
+        {'name': 'free-pct-disk',
+        'call_back': get_delta,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units':'%',
+        'slope': 'both',
+        'format': '%u',
+        'description': 'Percentage of raw device free',
+        'groups': 'Aerospike',
+        },
+  
+        {'name': 'free-pct-memory',
+        'call_back': get_delta,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units':'%',
+        'slope': 'both',
+        'format': '%u',
+        'description': 'Percentage memory free',
+        'groups': 'Aerospike',
+        },
 
         {'name': 'stat_rw_timeout',
         'call_back': get_delta,
@@ -270,7 +292,7 @@ def metric_init(params):
         'units': 'ReadWrite TimeOut',
         'slope': 'positive',
         'format': '%u',
-        'description': 'The number of read/write timeouts over a 15 second period. This should be close to zero at all times.',
+        'description': 'The number of read/write timeouts server side over a 15 second period. This should be close to zero at all times.',
         'groups': 'Aerospike',
         }]
 
