@@ -1,12 +1,20 @@
 #!/usr/bin/env python
 
-""" This module allows us to trend stats from
+''' This module allows us to trend stats from
     Aerospike using Ganglia.  The Aerospike dashboard
     is nice but we do like to trend over time in Ganglia.
 
     see: https://github.com/dcarrollno/Ganglia-Modules 
 
-    DC, 8/2014 """
+    DC, 8/2014 
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE. '''
 
 import os
 import time
@@ -28,7 +36,7 @@ cmd2=" -v statistics"
 cmd = cmd1+thishost+cmd2
 
 def get_metrics():
-    """Aerospike Metrics"""
+    ''' Aerospike Metrics '''
     global METRICS, curr_time, last_time
 
     if (time.time() - last_time > ascache):
@@ -49,7 +57,7 @@ def get_metrics():
     return (METRICS,curr_time)
 
 def get_delta(name):
-    """ Perform logic on metrics as needed"""
+    ''' Perform logic on metrics as needed '''
     global d1, curr_metrics, LAST_METRICS, curr_time, last_time
 
     [curr_metrics,curr_time]=get_metrics()
@@ -65,7 +73,7 @@ def get_delta(name):
         # Uncomment lines below for debugging
         #print k
         #print "Current Metrics value is %d" % v
-	#print curr_time
+	    #print curr_time
         #for a,b in LAST_METRICS.items():
           #if a == name:
             #print a
@@ -105,7 +113,7 @@ def metric_init(params):
         'units': 'read_reqs',
         'slope': 'positive', 
         'format': '%u',
-        'description': 'The number of read requests over a 15 second time period',
+        'description': 'The number of read requests over a 30 second time period',
         'groups': 'Aerospike',
         },
 
@@ -116,7 +124,18 @@ def metric_init(params):
         'units': 'read_success',
         'slope': 'positive',
         'format': '%u',
-        'description': 'The number of read successes over a 15 second time period.',
+        'description': 'The number of read successes over a 30 second time period.',
+        'groups': 'Aerospike',
+        },
+
+        {'name': 'waiting_transactions',
+        'call_back': get_delta,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units': 'waiting tx',
+        'slope': 'positive',
+        'format': '%u',
+        'description': 'The number of waiting transactions over a 30 second period',
         'groups': 'Aerospike',
         },
 
@@ -138,7 +157,7 @@ def metric_init(params):
         'units': 'write_reqs',
         'slope': 'positive',
         'format': '%u',
-        'description': 'The number of client write requests over a 15 second period',
+        'description': 'The number of client write requests over a 30 second period',
         'groups': 'Aerospike',
         },
 
@@ -149,7 +168,7 @@ def metric_init(params):
         'units': 'write_success',
         'slope': 'positive',
         'format': '%u',
-        'description': 'The nummber of write successes over a 15 second period.',
+        'description': 'The nummber of write successes over a 30 second period.',
         'groups': 'Aerospike',
         },
 
@@ -182,7 +201,7 @@ def metric_init(params):
         'units': 'transactions',
         'slope': 'positive',
         'format': '%u',
-        'description': 'The total number of transactions over a 15 second period. Includes all reads, writes and info requests',
+        'description': 'The total number of transactions over a 30 second period. Includes all reads, writes and info requests',
         'groups': 'Aerospike',
         },
 
@@ -237,7 +256,7 @@ def metric_init(params):
         'units': 'evictions',
         'slope': 'positive',
         'format': '%u',
-        'description': 'We evict non-zero TTL data if we reach 50% of available storage or 60% of 60GB memory.',
+        'description': 'We evict non-zero TTL data if we reach 50% of available storage or 60% of 60GB memory. Note this 60GB is our current company hardware standard for Aerospike nodes so adjust this accordingly if yours differs.',
         'groups': 'Aerospike',
         },
 
@@ -292,7 +311,51 @@ def metric_init(params):
         'units': 'ReadWrite TimeOut',
         'slope': 'positive',
         'format': '%u',
-        'description': 'The number of read/write timeouts server side over a 15 second period. This should be close to zero at all times.',
+        'description': 'The number of read/write timeouts server side over a 30 second period. This should be close to zero at all times.',
+        'groups': 'Aerospike',
+        },
+
+        {'name': 'stat_read_reqs_xdr',
+        'call_back': get_delta,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units': 'XDR Read Reqs',
+        'slope': 'positive',
+        'format': '%u',
+        'description': 'The number of cross-data-center read requests handled by this node.',
+        'groups': 'Aerospike',
+        },
+
+        {'name': 'stat_write_reqs_xdr',
+        'call_back': get_delta,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units': 'XDR Write Reqs',
+        'slope': 'positive',
+        'format': '%u',
+        'description': 'The number of cross-data-center write requests handled by this node',
+        'groups': 'Aerospike',
+        },
+
+        {'name': 'migrate_msgs_recv',
+        'call_back': get_delta,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units': 'Migrate msgs recvd',
+        'slope': 'positive',
+        'format': '%u',
+        'description': 'The number of migrate messages received by this node over 30 seconds',
+        'groups': 'Aerospike',
+        },
+
+        {'name': 'migrate_msgs_sent',
+        'call_back': get_delta,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units': 'Migrate msgs sent',
+        'slope': 'positive',
+        'format': '%u',
+        'description': 'The number of migrate messages sent by this node over 30 seconds',
         'groups': 'Aerospike',
         }]
 
@@ -309,8 +372,8 @@ if __name__ == '__main__':
         for d in descriptors:
             v = d['call_back'](d['name'])
 	    print 'value for %s is %u' % (d['name'],  v)
-        print 'Sleeping 15 seconds'
+        print 'Sleeping 30 seconds'
         """ Add to cache """
         LAST_METRICS=copy.deepcopy(METRICS)
 	last_time=time.time()
-        time.sleep(15)
+        time.sleep(30)

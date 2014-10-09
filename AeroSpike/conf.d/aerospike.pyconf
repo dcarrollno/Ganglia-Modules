@@ -1,3 +1,9 @@
+# Uncomment the metrics below you would like to expose.
+# You will need to add them accordingly to the 
+# aerospike.py module as well. 
+
+
+
 modules {
   module {
     name = "aerospike"
@@ -6,7 +12,7 @@ modules {
 }
 
 collection_group {
-  collect_every = 15 
+  collect_every = 30 
   time_threshold = 40
 
     metric {
@@ -99,4 +105,57 @@ collection_group {
     title= "Read/Write TimeOut"
     value_threshold = 0
     }
+    metric {
+    name = "waiting_transactions"
+    title = "Waiting Transactions"
+    value_threshold = 0
+    }
+    # metric {
+    #name = "stat_delete_successes"
+    #title = "Delete Successes"
+    #value_threshold = 0
+    #}
+    metric {
+    name = "stat_read_reqs_xdr"
+    title = "XDR Read Requests"
+    value_threshold = 0
+    }
+    metric {
+    name = "stat_write_reqs_xdr"
+    title = "XDR Write Reqs"
+    value_threshold = 0
+    }
+    # metric {
+    #name = "stat_xdr_pipe_writes"
+    #title = "XDR Pipe Writes"
+    #value_threshold = 0
+    #}
+    # metric {
+    #name = "stat_xdr_pipe_miss"
+    #title = "XDR Pipe Misses"
+    #value_threshold = 0
+    #}
+    # metric {
+    #name = "stat_xdr_pipe_writes"
+    #title = "XDR Pipe Writes"
+    #value_threshold = 0
+    #}
+    metric {
+    name = "migrate_msgs_sent"
+    title = "Migrate Messages Sent"
+    value_threshold = 0
+    }
+    metric {
+    name = "migrate_msgs_recv"
+    title = "Migrate Messages Received"
+    value_threshold = 0
+    }
   }
+
+
+
+
+
+
+
+
