@@ -70,14 +70,6 @@ def get_delta(name):
       last_time=time.time()
     for k,v in curr_metrics.items():
       if k == name:
-        # Uncomment lines below for debugging
-        #print k
-        #print "Current Metrics value is %d" % v
-	    #print curr_time
-        #for a,b in LAST_METRICS.items():
-          #if a == name:
-            #print a
-            #print "Last Metrics value is %d" % b
         if (k == 'client_connections') or (k == 'objects'):
           return int(v)
         elif (k == 'used-bytes-memory') or (k == 'used-bytes-disk'):
@@ -92,7 +84,7 @@ def get_delta(name):
           return int(v)
 
 def metric_init(params):
-    """Required by Ganglia"""
+    ''' Required by Ganglia '''
     global descriptors, LAST_METRICS
 
     descriptors = [{'name': 'client_connections',
@@ -362,7 +354,7 @@ def metric_init(params):
     return(descriptors)
 
 def metric_cleanup():
-    '''Clean up the metric module.'''
+    ''' Clean up the metric module. '''
     pass
 
 #This code is for debugging and unit testing
@@ -373,7 +365,7 @@ if __name__ == '__main__':
             v = d['call_back'](d['name'])
 	    print 'value for %s is %u' % (d['name'],  v)
         print 'Sleeping 30 seconds'
-        """ Add to cache """
+        ''' Add to cache ''' 
         LAST_METRICS=copy.deepcopy(METRICS)
 	last_time=time.time()
         time.sleep(30)
