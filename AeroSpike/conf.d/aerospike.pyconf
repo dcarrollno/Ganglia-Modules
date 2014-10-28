@@ -126,8 +126,8 @@ collection_group {
     value_threshold = 0
     }
     # metric {
-    #name = "stat_xdr_pipe_writes"
-    #title = "XDR Pipe Writes"
+    #name = "stat_xdr_pipe_reads"
+    #title = "XDR Pipe Reads"
     #value_threshold = 0
     #}
     # metric {
