@@ -1,0 +1,15 @@
+Redis
+
+python module for Ganglia 3.1
+
+This python module uses the redis cli utility and 
+parses metric results based upon whatever you add. 
+Just drop redis.py into your python_modules dir and 
+redis.pyconf into your conf.d directory under Ganglia.
+
+
+Author
+Dave Carroll
+dcarrollno@gmail.com
+
+

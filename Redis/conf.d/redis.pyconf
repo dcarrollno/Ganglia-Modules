@@ -1,0 +1,108 @@
+# redis - Redis Ganglia Metrics
+# by Dave C.
+
+modules {
+  module {
+    name = "nan_redis"
+    language = "python"
+    param host {
+      value = "127.0.0.1" }
+    param port {
+      value = 6379 }
+    param cachetimer {
+      value = 5 }
+    param conf_file {
+      value = "/etc/redis.conf" }
+  }
+}
+
+collection_group {
+  collect_every = 30
+  time_threshold = 40
+
+  metric {
+    name = "redis_connected_clients"
+    title = "Connected Clients"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_blocked_clients"
+    title = "Blocked Clients"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_used_memory"
+    title = "Used Memory"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_expired_keys"
+    title = "Expired Keys"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_evicted_keys"
+    title = "Evicted Keys"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_keyspace_hits"
+    title = "Keyspace Hits"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_keyspace_misses"
+    title = "Keyspace Misses"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_used_memory_rss"
+    title = "Used Memory RSS"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_used_memory_peak"
+    title = "Used Mem Peak"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_instantaneous_ops_per_sec"
+    title = "Ops Per Sec"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_total_net_input_bytes"
+    title = "Net Input Bytes"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_total_net_output_bytes"
+    title = "Net Output Bytes"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_repl_backlog_size"
+    title = "Replication Backlog Size"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_total_commands_processed"
+    title = "Commands Processed"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_mem_fragmentation_ratio"
+    title = "Memory Fragmentation"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_rdb_changes_since_last_save"
+    title = "Changes Since Last Dump"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "redis_master_last_io_seconds_ago"
+    title = "Master Last IO Sec"
+    value_threshold = 1.0
+  }
+}
