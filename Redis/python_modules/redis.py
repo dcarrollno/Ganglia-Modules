@@ -24,12 +24,6 @@ import socket
 import time
 import re
 import copy
-import logging
-
-# Logging
-#logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s\t Thread-%(thread)d - %(message)s", filename='/tmp/gmond.log')
-logging.debug('starting up')
-
 
 curr_time=time.time()             # current time
 last_time=0                       # last update
