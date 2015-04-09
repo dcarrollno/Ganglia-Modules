@@ -1,0 +1,16 @@
+PageSpeed
+
+python module for Ganglia 3.1
+
+This metric module polls Google's PageSpeed module
+and trends stats in Ganglia.  Just drop pagepseed.pyconf 
+into you Ganglia conf.d dir, and pagepseed.py into your
+python_modules dir. 
+
+
+Author
+Dave Carroll
+dcarrollno@gmail.com
+dcarroll@nanigans.com
+
+

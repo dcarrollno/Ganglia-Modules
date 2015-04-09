@@ -1,9 +1,10 @@
 # redis - Redis Ganglia Metrics
-# by Dave C.
+# by Dave C.  dcarrollno@gmail.com
+# dcarroll@nanigans.com
 
 modules {
   module {
-    name = "nan_redis"
+    name = "redis"
     language = "python"
     param host {
       value = "127.0.0.1" }

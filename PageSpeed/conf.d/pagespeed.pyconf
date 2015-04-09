@@ -1,0 +1,117 @@
+# Google Pagespeed metrics for Ganglia
+# Dave C. dcarrollno@gmail.com
+# dcarroll@nanigans.com
+
+modules {
+  module {
+    name = "pagespeed"
+    language = "python"
+    param RefreshRate {
+        value = 30
+    }
+    param stats_url {
+     value = 'http://localhost/pagespeed_admin'
+    }
+   }
+  }
+
+collection_group {
+  collect_every = 30
+  time_threshold = 30
+
+  metric {
+    name = "pagespeed_cache_hits"
+    title = "Cache Hits"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_cache_misses"
+    title = "Cache Misses"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_cache_backend_hits"
+    title = "Cache Backend Hits"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_cache_expirations"
+    title = "Cache Expires"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_cache_inserts"
+    title = "Cache Inserts"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_css_combine_opportunities"
+    title = "CSS Combines"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_css_filter_uses"
+    title = "CSS Filter Uses"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_javascript_blocks_minified"
+    title = "Javascript Minified"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_javascript_total_bytes_saved"
+    title = "Javascript Bytes Saved"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_javascript_total_original_bytes"
+    title = "Javascript Original Bytes"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_resource_url_domain_acceptances"
+    title = "URL Domain Accepts"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_resource_url_domain_rejections"
+    title = "URL Domain Rejects"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_rewrite_cached_output_hits"
+    title = "Rewrite Cached Hits"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_rewrite_cached_output_misses"
+    title = "Rewrite Cached Misses"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_critical_images_valid_count"
+    title = "Images Count"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_critical_images_not_found_count"
+    title = "Images Not Found"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_file_cache_inserts"
+    title = "File Cache Inserts"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_file_cache_hits"
+    title = "File Cache Hits"
+    value_threshold = 0
+  }
+  metric {
+    name = "pagespeed_file_cache_misses"
+    title = "File Cache Misses"
+    value_threshold = 0
+  }
+}

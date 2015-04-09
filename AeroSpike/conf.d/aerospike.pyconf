@@ -1,7 +1,8 @@
 # Uncomment the metrics below you would like to expose.
 # You will need to add them accordingly to the 
 # aerospike.py module as well. 
-
+# - Dave C. dcarrollno@gmail.com
+# dcarroll@nanigans.com
 
 
 modules {
