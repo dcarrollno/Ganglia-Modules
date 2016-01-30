@@ -31,13 +31,18 @@ METRICS = {}
 LAST_METRICS = {}
 PARAMS={}
 
-# Get the password
+''' Rather than burn the password in here
+    we should instead go find it on gmond
+    restart from redis.conf in case someone
+    changed it. '''
+
 conf_file = '/etc/redis.conf'
 
 with open(conf_file, 'r') as f:
-  for line in f:
-    if line.startswith('requirepass'):
-      (label,pw) = line.split()
+    for line in f:
+        if line.startswith('requirepass'):
+            (label,pw) = line.split()
+
 cmd1 = "auth "
 cmd2 = "\n"
 cmd = cmd1+pw+cmd2
@@ -47,35 +52,34 @@ def get_metrics():
     port = int(port)
     cachetimer = int(cachetimer)
 
-    # Update from Redis. 
+    # Update from Redis.
     if (time.time() - last_time > cachetimer):
-      #print "Running Redis query"
-      s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      s.connect((host, port))
-      s.send(cmd)
-      sec = s.recv(4096)
-      #print sec 		# This should return OK meaning socket conn and auth done
-      s.send("INFO\n")
-      info = s.recv(4096)
-      #print info
-      if "$" != info[0]:
-        print "not equal"
-        return 0
-      len = int(info[1:info.find("\n")])
-      if 4096 < len:
-        info += s.recv(len - 4096)
-      for line in info.splitlines()[1:]:
-        #print line
-        if "" == line:	# blank line, skip
-          continue
-        if line.startswith("#"):	# skips comments
-          continue
-        (n,v) = line.split(":")
-        #print n,v
-        METRICS[n]=v
-      curr_time=time.time()
-      last_time=time.time()
-      s.close()
+        #print "Running Redis query"
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((host, port))
+        s.send(cmd)
+        sec = s.recv(4096)
+        #print sec 		# This should return OK meaning socket conn and auth done
+        s.send("INFO\n")
+        info = s.recv(4096)
+        #print info
+        if "$" != info[0]:
+            print "not equal"
+            return 0
+        len = int(info[1:info.find("\n")])
+        if 4096 < len:
+            info += s.recv(len - 4096)
+        for line in info.splitlines()[1:]:
+            #print line
+            if "" == line:	# blank line, skip
+                continue
+            if line.startswith("#"):	# skips comments
+                continue
+            (n,v) = line.split(":")
+            METRICS[n]=v
+        curr_time=time.time()
+        last_time=time.time()
+        s.close()
     return (METRICS,curr_time)
 
 def get_stats(name):
@@ -84,48 +88,43 @@ def get_stats(name):
     [curr_metrics,curr_time]=get_metrics()
 
     if LAST_METRICS:
-      '''Check the cache and prime it if not ready '''
-      #print "Cache not empty nor expired - using cached items"
-      next
+        '''Check the cache and prime it if not ready '''
+        #print "Cache not empty nor expired - using cached items"
+        next
     else:
-      #print ("Cache empty or expired - running query, filling cache")
-      LAST_METRICS=copy.deepcopy(curr_metrics)	# cache
-      last_time=time.time()	# set the cache timer
+        #print ("Cache empty or expired - running query, filling cache")
+        LAST_METRICS=copy.deepcopy(curr_metrics)	# cache
+        last_time=time.time()	# set the cache timer
 
     name = re.sub('^redis_', '', name)
     #print(name)	# debug
 
     for k,v in curr_metrics.items():
-      ''' Show all metrics '''
-      #print("The key is %s and value is %s" % (k,v))	# debug
+        ''' Show all metrics '''
+        #print("The key is %s and value is %s" % (k,v))	# debug
 
-      if k == name:
-        try:
-          v = int(v)
-        except:
-          #print("ValueError: When converting value to int but we'll try float for %s %s" % (k,v))
-          if (k == 'used_cpu_sys') or (k == 'used_cpu_user') or (k == 'mem_fragmentation_ratio'):
-            v = float(v)
-            #print v
-            return float(v)
+        if k == name:
+            try:
+                v = int(v)
+            except:
+                #print("ValueError: When converting value to int but we'll try float for %s %s" % (k,v))
+                if (k == 'used_cpu_sys') or (k == 'used_cpu_user') or (k == 'mem_fragmentation_ratio'):
+                   v = float(v)
+                   #print v
+                   return float(v)
 
-        #print "In get_stats we find %s and %s" % (k,v)
+            #print "In get_stats we find %s and %s" % (k,v)
 
-        if (k == 'expired_keys'):
-          d1 = int(v - int(LAST_METRICS.get(k,0)))
+            if (k == 'expired_keys'):
+                d1 = int(v - int(LAST_METRICS.get(k,0)))
 
-        # this block below gets deltas
-        if (k == 'used_cpu_sys') or (k == 'used_cpu_user'):
-          #for a,b in LAST_METRICS.items():
-            #if (a == 'used_cpu_sys') or (a == 'used_cpu_user'):
-              #print "Last Metric: %s %s" % (a,b)
-
-          #print "New metric: %s,%s" % (k,v)
-          d1 = float(v - float(LAST_METRICS.get(k,0)))
-          #print "Delta is: %f" % d1
-          return float(d1)
-        else:
-          return int(v)	# return non deltas
+            # this block below gets deltas
+            if (k == 'used_cpu_sys') or (k == 'used_cpu_user'):
+                d1 = float(v - float(LAST_METRICS.get(k,0)))
+                #print "Delta is: %f" % d1
+                return float(d1)
+            else:
+                return int(v)	# return non deltas
 
 def metric_init(params):
     global descriptors,host,port,cachetimer,conf_file
@@ -145,6 +144,7 @@ def metric_init(params):
         'description': 'Number of connected clients excluding slaves.',
         'groups': 'Redis',
         },
+
         {'name': 'redis_connected_slaves',
         'call_back': get_stats,
         'time_max': 60,
@@ -155,6 +155,7 @@ def metric_init(params):
         'description': 'Number of slaves connected',
         'groups': 'Redis',
         },
+
         {'name': 'redis_blocked_clients',
         'call_back': get_stats,
         'time_max': 60,
@@ -165,6 +166,7 @@ def metric_init(params):
         'description': 'Number of clients pending on a blocking call',
         'groups': 'Redis',
         },
+
         {'name': 'redis_used_memory',
         'call_back': get_stats,
         'time_max': 60,
@@ -175,6 +177,7 @@ def metric_init(params):
         'description': 'The total number of bytes allocated by Redis using its allocator',
         'groups': 'Redis',
         },
+
         {'name': 'redis_expired_keys',
         'call_back': get_stats,
         'time_max': 60,
@@ -185,6 +188,7 @@ def metric_init(params):
         'description': 'Expired keys over past 30 seconds',
         'groups': 'Redis',
         },
+
         {'name': 'redis_evicted_keys',
         'call_back': get_stats,
         'time_max': 60,
@@ -195,6 +199,7 @@ def metric_init(params):
         'description': 'Evicted keys over past 30 seconds due to maxmemory limit setting',
         'groups': 'Redis',
         },
+
         {'name': 'redis_rdb_changes_since_last_save',
         'call_back': get_stats,
         'time_max': 60,
@@ -205,6 +210,7 @@ def metric_init(params):
         'description': 'Number of changes since the last dump',
         'groups': 'Redis',
         },
+
         {'name': 'redis_used_memory_rss',
         'call_back': get_stats,
         'time_max': 60,
@@ -215,6 +221,7 @@ def metric_init(params):
         'description': 'Used Memory RSS. If used_memory_peak and used_memory_rss are roughly equal and both significantly higher than used_memory, this indicates that external fragmentation is occurring',
         'groups': 'Redis',
         },
+
         {'name': 'redis_used_memory_peak',
         'call_back': get_stats,
         'time_max': 60,
@@ -225,6 +232,7 @@ def metric_init(params):
         'description': 'Historically largest amount of mem used by Redis.  If used_memory_peak and used_memory_rss are roughly equal and both significantly higher than used_memory, this indicates that external fragmentation is occurring',
         'groups': 'Redis',
         },
+
         {'name': 'redis_instantaneous_ops_per_sec',
         'call_back': get_stats,
         'time_max': 60,
@@ -235,6 +243,7 @@ def metric_init(params):
         'description': 'Instantaneous Operations Per Sec',
         'groups': 'Redis',
         },
+
         {'name': 'redis_total_net_input_bytes',
         'call_back': get_stats,
         'time_max': 60,
@@ -245,6 +254,7 @@ def metric_init(params):
         'description': 'Network Input Bytes by Redis over past 30 seconds',
         'groups': 'Redis',
         },
+
         {'name': 'redis_total_net_output_bytes',
         'call_back': get_stats,
         'time_max': 60,
@@ -255,6 +265,7 @@ def metric_init(params):
         'description': 'Network Output in Bytes by Redis over past 30 seconds',
         'groups': 'Redis',
         },
+
         {'name': 'redis_keyspace_hits',
         'call_back': get_stats,
         'time_max': 60,
@@ -265,6 +276,7 @@ def metric_init(params):
         'description': 'Keyspace Hits over past 30 seconds',
         'groups': 'Redis',
         },
+
         {'name': 'redis_keyspace_misses',
         'call_back': get_stats,
         'time_max': 60,
@@ -275,6 +287,7 @@ def metric_init(params):
         'description': 'Keyspace Misses over past 30 seconds',
         'groups': 'Redis',
         },
+
         {'name': 'redis_repl_backlog_size',
         'call_back': get_stats,
         'time_max': 60,
@@ -285,6 +298,7 @@ def metric_init(params):
         'description': 'Replication Backlog Size in Bytes',
         'groups': 'Redis',
         },
+
         {'name': 'redis_mem_fragmentation_ratio',
         'call_back': get_stats,
         'time_max': 60,
@@ -306,6 +320,7 @@ def metric_init(params):
         'description': 'Number of seconds ago since last interaction with master',
         'groups': 'Redis',
         },
+
         {'name': 'redis_total_commands_processed',
         'call_back': get_stats,
         'time_max': 60,

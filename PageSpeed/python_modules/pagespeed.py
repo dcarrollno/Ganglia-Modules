@@ -38,13 +38,13 @@ def get_metrics():
     aResp = urllib2.urlopen(STATSURL);
     web_pg = aResp.readlines();
     for line in web_pg:
-      line = line.rstrip("\n\r")
-      match = re.search(r'\S+:\s+\d+',line)
-      if match:
-        #print line
-        (metric,value) = line.split(':')
-        METRICS[metric]=int(value)
-        curr_time = time.time()
+        line = line.rstrip("\n\r")
+        match = re.search(r'\S+:\s+\d+',line)
+        if match:
+            #print line
+            (metric,value) = line.split(':')
+            METRICS[metric]=int(value)
+            curr_time = time.time()
     return(METRICS,curr_time)
 
 def get_stats(name):
@@ -53,27 +53,27 @@ def get_stats(name):
     name = re.sub('pagespeed_','',name)	# convert metric name to match Google
 
     if (time.time() - last_time > cache):	# Is cache expired?
-      LAST_METRICS=copy.deepcopy(curr_metrics)
-      last_time = time.time()
-      [curr_metrics,curr_time]=get_metrics()
+        LAST_METRICS=copy.deepcopy(curr_metrics)
+        last_time = time.time()
+        [curr_metrics,curr_time]=get_metrics()
     else:
-      print("Cache not expired..")		# do not refill cache
+        print("Cache not expired..")		# do not refill cache
 
     if not LAST_METRICS:			# cache empty - only on first run of program
-      #print("Cache Miss: filling now...")	# yep, cache miss occurred
-      LAST_METRICS=copy.deepcopy(curr_metrics)	# prime cache
-      last_time = time.time()			# set current timer
+        #print("Cache Miss: filling now...")	# yep, cache miss occurred
+        LAST_METRICS=copy.deepcopy(curr_metrics)	# prime cache
+        last_time = time.time()			# set current timer
     else:					# if cache exists, check age of cache
-      print("Cache hit")			# otherwise we have cache hit inside timer
+        print("Cache hit")			# otherwise we have cache hit inside timer
 
     for k,v in curr_metrics.items():
-      if k == name:
-        print "Name is: %s and value is %s" % (k,v)
-        d1 = int(v - LAST_METRICS.get(k,0))
-        if d1 < 0:
-          d1 = 0
-        print "Delta for %s is: %d" % (k,d1)
-        return int(d1)
+        if k == name:
+            print "Name is: %s and value is %s" % (k,v)
+            d1 = int(v - LAST_METRICS.get(k,0))
+            if d1 < 0:
+                d1 = 0
+                print "Delta for %s is: %d" % (k,d1)
+            return int(d1)
 
 def metric_init(params):
     global descriptors, STATSURL

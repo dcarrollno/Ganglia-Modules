@@ -8,6 +8,9 @@ as I was unable to find anything similar online for Aerospike and
 while we use the Aerospike dashboard, we also like to trend specific 
 items alongside our system metrics within Ganglia. 
 
+I use this in a Puppet template to define whether or not to 
+trend metrics involving XDR on clusters where we support that.
+
 This can no doubt be improved so feel free to do so.
 
 Author

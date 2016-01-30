@@ -40,20 +40,20 @@ def get_metrics():
     global METRICS, curr_time, last_time
 
     if (time.time() - last_time > ascache):
-      p=os.popen(cmd, "r")
-      while 1:
-        line=p.readline()
-        if not line: break
-        list=line.split(';')
-        for item in list:
-          m=re.match("(\S+)=(\d+)",item)
-          if m:
-            parts=re.match('(\S+)=(\d+)',item).groups()
-            k,v=parts[0], int(parts[1])
-            METRICS[k]= v
-            curr_time=time.time()
-            last_time=time.time()
-      stat=p.close()
+        p=os.popen(cmd, "r")
+        while 1:
+            line=p.readline()
+            if not line: break
+            list=line.split(';')
+            for item in list:
+                m=re.match("(\S+)=(\d+)",item)
+                if m:
+                    parts=re.match('(\S+)=(\d+)',item).groups()
+                    k,v=parts[0], int(parts[1])
+                    METRICS[k]= v
+                    curr_time=time.time()
+                    last_time=time.time()
+        stat=p.close()
     return (METRICS,curr_time)
 
 def get_delta(name):
@@ -62,26 +62,26 @@ def get_delta(name):
 
     [curr_metrics,curr_time]=get_metrics()
     if LAST_METRICS:
-      '''Check the cache and prime it if not ready '''
-      next
+        '''Check the cache and prime it if not ready '''
+        next
     else:
-      #print ("Empty - adding to cache")
-      LAST_METRICS=copy.deepcopy(METRICS)
-      last_time=time.time()
+        #print ("Empty - adding to cache")
+        LAST_METRICS=copy.deepcopy(METRICS)
+        last_time=time.time()
     for k,v in curr_metrics.items():
-      if k == name:
-        if (k == 'client_connections') or (k == 'objects'):
-          return int(v)
-        elif (k == 'used-bytes-memory') or (k == 'used-bytes-disk'):
-          d1 = int(1024 * v)
-	  return(d1)
-        else:
-          #if v < LAST_METRICS.get(k,0):
-           # v += 4294967296
-          #d1 = int(v - LAST_METRICS.get(k,0)/curr_time - last_time)
-	  d1 = int(v - LAST_METRICS.get(k,0))
-	  #print "Delta is: %d" % d1
-          return int(v)
+        if k == name:
+            if (k == 'client_connections') or (k == 'objects'):
+                return int(v)
+            elif (k == 'used-bytes-memory') or (k == 'used-bytes-disk'):
+                d1 = int(1024 * v)
+	        return(d1)
+            else:
+                #if v < LAST_METRICS.get(k,0):
+                # v += 4294967296
+                #d1 = int(v - LAST_METRICS.get(k,0)/curr_time - last_time)
+	        d1 = int(v - LAST_METRICS.get(k,0))
+	        #print "Delta is: %d" % d1
+                return int(v)
 
 def metric_init(params):
     ''' Required by Ganglia '''
