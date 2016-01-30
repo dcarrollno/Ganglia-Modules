@@ -1,0 +1,16 @@
+Vsftpd
+
+python module for Ganglia 3.1
+
+This simple python module gathers vsftpd stats from the vsftpd logfile.
+We run this during the day to collect on-going stats and trend our 
+vsftpd usage by customers. We track logins, failures, uploads and downloads.
+
+Each day when the logfile rotates, so do the stats in our metrics.
+
+
+Author
+Dave Carroll
+dcarrollno@gmail.com
+dcarroll@nanigans.com
+

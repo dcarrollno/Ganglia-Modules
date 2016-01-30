@@ -1,0 +1,44 @@
+# Ganglia ftp stats module
+#
+# - Dave C.
+
+modules {
+  module {
+    name = "vsftpd"
+    language = "python"
+    param RefreshRate {
+        value = 60
+     }
+    }
+  }
+
+collection_group {
+  collect_every = 60
+  time_threshold = 70
+
+   metric {
+    name = "ftp_logins"
+    title = "FTP Logins"
+    value_threshold = 1.0
+   }
+   metric {
+    name = "ftp_login_fails"
+    title = "Login Fails"
+    value_threshold = 1.0
+   }
+   metric {
+    name = "ftp_downloads"
+    title = "FTP Downloads"
+    value_threshold = 1.0
+   }
+   metric {
+    name = "ftp_failed_downloads"
+    title = "Failed Downloads"
+    value_threshold = 1.0
+   }
+   metric {
+    name = "ftp_uploads"
+    title = "FTP Uploads"
+    value_threshold = 1.0
+   }
+}
