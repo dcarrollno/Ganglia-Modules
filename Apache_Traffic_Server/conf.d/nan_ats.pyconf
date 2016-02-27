@@ -1,0 +1,161 @@
+# Ganglia module to trend Apache Traffic Server
+# There are dozens or more of metrics
+# One must research as to what they want to expose
+# This module requires the stats module be loaded in ATS
+# - Dave C.
+# davecarrollno@gmail.com
+#
+# https://github.com/dcarrollno/Ganglia-Modules/wiki
+
+ modules {
+   module {
+     name = "nan_ats"
+     language = "python"
+     param RefreshRate {
+       value = 60
+     }
+   }
+ }
+
+collection_group {
+  collect_every = 60
+  time_threshold = 65
+
+#  CACHE Hit/Miss Ratios
+
+  metric {
+    name = "ats_proxy.process.http.cache_hit_fresh"
+    title = "Cache Hits Fresh"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.cache_hit_mem_fresh"
+    title = "Cache Hits Mem Fresh"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.cache_hit_revalidated"
+    title = "Cache Hits Revalidated"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.cache_hit_ims"
+    title = "Cache Hits IMS"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.cache_hit_stale_served"
+    title = "Cache Hits Stale Served"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.cache_miss_cold"
+    title = "Cache Miss Cold"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.cache_miss_changed"
+    title = "Cache Miss Changed"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.cache_miss_client_no_cache"
+    title = "Cache Miss Client No-Cache"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.cache_miss_client_not_cacheable"
+    title = "Cache Miss Client Not Cacheable"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.cache_miss_ims"
+    title = "Cache Miss IMS"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.cache.ram_cache.hits"
+    title = "Cache Hit RAM"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.cache.ram_cache.misses"
+    title = "Cache RAM Misses"
+    value_threshold = 1.0
+  }
+
+# Cache Stats
+
+  metric {
+    name = "ats_proxy.process.cache.bytes_used"
+    title = "Cache Bytes Used"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.cache.bytes_total"
+    title = "Cache Bytes Total"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.cache.ram_cache.total_bytes"
+    title = "Cache RAM Bytes Total"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.cache.ram_cache.bytes_used"
+    title = "Cache RAM Bytes Used"
+    value_threshold = 1.0
+  }
+
+
+# Cache Evacuation - monitor items removed from cache
+# if high values here, cache needs increasing
+
+  metric {
+    name = "ats_proxy.process.cache.gc_bytes_evacuated"
+    title = "Cache Bytes Evacuated"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.cache.gc_frags_evacuated"
+    title = "Cache Frags Evacuated"
+    value_threshold = 1.0
+  }
+
+# Connections - Monitor for overload
+
+  metric {
+    name = "ats_proxy.process.http.current_client_connections"
+    title = "Current Client Conns"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.current_server_connections"
+    title = "Current Server Conns"
+    value_threshold = 1.0
+  }
+
+# HTTP Response Code Metrics
+
+  metric {
+    name = "ats_proxy.process.http.2xx_responses"
+    title = "2xx Response Codes"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.3xx_responses"
+    title = "3xx Response Codes"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.4xx_responses"
+    title = "4xx Response Codes"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.http.5xx_responses"
+    title = "5xx Response Codes"
+    value_threshold = 1.0
+  }
+
+}
