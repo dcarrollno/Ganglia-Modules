@@ -1,0 +1,21 @@
+Apache Traffic Server
+
+python module for Ganglia 3.1
+
+This python module calls the Apache Traffic Server stats module web page 
+and parses metric results based upon definitions in your pyconf.  I created this
+as I was unable to find anything similar online. 
+
+To use this you must enable the stats module within ATS. Directions can be found
+here: https://docs.trafficserver.apache.org/en/4.2.x/reference/plugins/stats_over_http.en.html
+
+To use this module, edit the URL to call in the ats.py module. Drop this module into
+your python modules dir and restart gmond. 
+
+This can no doubt be improved so feel free to do so.
+
+Author
+Dave Carroll
+dcarrollno@gmail.com
+dcarroll@nanigans.com
+
