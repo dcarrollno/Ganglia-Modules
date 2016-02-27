@@ -18,7 +18,10 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE. '''
+THE SOFTWARE. 
+
+
+NOTE: Change the URL under get_json function to your server IP or name '''
 
 __author__ = "Dave Carroll"
 
@@ -40,7 +43,7 @@ def get_json():
     #return(json_data)
 
     try:
-        aResp = urllib2.urlopen("http://10.132.227.145/_stats");
+        aResp = urllib2.urlopen("http://<YOU_IP_HERE>/_stats");
         json_data = json.loads(aResp.read())
         last_time = time.time()
     except:
