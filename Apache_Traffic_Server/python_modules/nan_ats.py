@@ -43,7 +43,7 @@ def get_json():
     #return(json_data)
 
     try:
-        aResp = urllib2.urlopen("http://<YOU_IP_HERE>/_stats");
+        aResp = urllib2.urlopen("http://<YOUR_IP_HERE>/_stats");
         json_data = json.loads(aResp.read())
         last_time = time.time()
     except:
