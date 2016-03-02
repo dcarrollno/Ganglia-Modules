@@ -6,22 +6,18 @@ import time
 import re
 import urllib, urllib2
 import socket
+import copy
 
 ''' This module pulls Apache Traffic Server metrics
-    via json and trends them in Ganglia. 
+    via json and trends them in Ganglia.
 
-see: https://github.com/dcarrollno/Ganglia-Modules
+    You must enable the stats modile in ATS.  We maintain a
+    list of metrics that we calc deltas on between runs. I
+    think this is cleaner than a series of conditionals.  We
+    could set a positive slope on these but I don't like that
+    as much as performing the deltas myself.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE. 
-
-
-NOTE: Change the URL under get_json function to your server IP or name '''
+    Set your local IP for stats.  '''
 
 __author__ = "Dave Carroll"
 
@@ -29,41 +25,78 @@ __author__ = "Dave Carroll"
 last_time = 0
 cache = 5
 json_data = {}
+METRICS = {}
+LAST_METRICS = {}
+delta_list = [ 'proxy.process.http.cache_hit_fresh','proxy.process.http.cache_hit_mem_fresh',
+               'proxy.process.http.cache_hit_revalidated', 'proxy.process.http.cache_hit_ims',
+               'proxy.process.http.cache_hit_stale_served', 'proxy.process.http.cache_miss_cold',
+	       'proxy.process.http.cache_miss_changed', 'proxy.process.http.cache_miss_client_no_cache',
+               'proxy.process.http.cache_miss_client_not_cacheable ', 'proxy.process.http.cache_miss_ims',
+               'proxy.process.cache.ram_cache.hits', 'proxy.process.cache.ram_cache.misses',
+               'proxy.process.cache.gc_bytes_evacuated', 'proxy.process.cache.gc_frags_evacuated',
+               'proxy.process.http.2xx_responses', 'proxy.process.http.3xx_responses',
+               'proxy.process.http.4xx_responses',  'proxy.process.http.5xx_responses' ]
+
+STATS_URL = 'http://10.132.227.145/_stats'
+
 
 def get_json():
-    global last_time,json_data
+    global last_time,json_data,last_time,METRICS
 
-    try:
-        json_data.clear()
-    except:
-        print("Unable to clear json_data")
-
-    # if we have a local file, use the following
-    #json_data = json.loads(open('ats_stats.json').read())
-    #return(json_data)
-
-    try:
-        aResp = urllib2.urlopen("http://<YOUR_IP_HERE>/_stats");
-        json_data = json.loads(aResp.read())
-        last_time = time.time()
-    except:
-        print("Unable to download json")
-
-    return(json_data)
-
-def get_stats(name):
-    global json_data,last_time
+    ''' Here we poll the json output and dict our metrics '''
 
     if (time.time() - last_time > cache):
+
         try:
             json_data.clear()
-            json_data = get_json()
         except:
-            print("unable to call get_json")
+            print("Unable to clear json_data")
+
+        # if we have a local file, use the following
+        #json_data = json.loads(open('ats_stats.json').read())
+        #for value in json_data['global']:
+        #    METRICS[value]=json_data['global'][value]
+
+        #return(json_data)
+
+        try:
+            aResp = urllib2.urlopen(STATS_URL);
+            json_data = json.loads(aResp.read())
+            for value in json_data['global']:
+                METRICS[value]=json_data['global'][value]
+
+        except:
+            print("Unable to download json")
+
+        return(METRICS)
+
+    else:
+        return
+
+
+def get_stats(name):
+    global json_data, LAST_METRICS
+
+    METRICS = get_json()
+    if LAST_METRICS:
+        ''' check if cache primed '''
+        next
+    else:
+        LAST_METRICS = copy.deepcopy(METRICS)
+        last_time = time.time()
 
     name = re.sub('ats_','',name)
-    metric = json_data['global'][name]
-    return int(metric)
+    for k,v in METRICS.items():
+        if k == name:
+  	    if name in delta_list:
+                v = int(v)
+                oldv = int(LAST_METRICS.get(k,0))
+                d1 = int(v - oldv)
+                #print("Delta is %s for metric %s" % (d1,name))
+                return int(d1)
+            else:
+                return int(v)
+
 
 
 def metric_init(params):
@@ -75,9 +108,9 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Hits',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'Number cache hits every 60 seconds',
+        'description': 'Number cache hits every 30 seconds that were served from local cache as fresh.',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.http.cache_hit_mem_fresh',
@@ -85,9 +118,9 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Hits',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'Number of cache hits from memory every 60 seconds',
+        'description': 'Number of cache hits from memory every 30 seconds served from local cache in memory.',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.http.cache_hit_revalidated',
@@ -95,9 +128,9 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Hits',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'ATS Process httpd cache hit revalidated. This means we had a stale representation of the object in our cache, but we revalidated it by checking using an If-Modified-Since header.',
+        'description': 'ATS Process httpd cache hit revalidated. This means we had a potentially stale representation of the object in our cache, but we revalidated it by calling the origin server and checking whether we need to pull a new item into cache or can revalidate and contiue using the existing item.',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.http.cache_hit_ims',
@@ -105,7 +138,7 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Hits',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
         'description': 'ATS cache hits ims',
         'groups': 'ATS',
@@ -115,9 +148,9 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Hits',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'ATS number of stale cache hits served over 60 seconds',
+        'description': 'ATS number of stale cache hits served over 30 seconds',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.http.cache_miss_cold',
@@ -125,9 +158,9 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Misses',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'ATS cold cache misses',
+        'description': 'ATS cold cache misses that could not be served from local cache',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.http.cache_miss_changed',
@@ -135,7 +168,7 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Misses',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
         'description': 'ATS cache misses changed',
         'groups': 'ATS',
@@ -145,9 +178,9 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Miss',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'Cache misses by client no cache',
+        'description': 'Cache misses by client sending a no-cache header.',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.http.cache_miss_client_not_cacheable',
@@ -155,7 +188,7 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Miss',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
         'description': 'ATS cache misses client not cacheable',
         'groups': 'ATS',
@@ -165,7 +198,7 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Miss',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
         'description': 'ATS http cache miss ims',
         'groups': 'ATS',
@@ -175,9 +208,9 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Hits',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'ATS cache hits from memory every 60 seconds. ',
+        'description': 'ATS cache hits from memory every 30 seconds. ',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.cache.ram_cache.misses',
@@ -185,7 +218,7 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Cache Miss',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
         'description': 'ATS cache misses from cache memory',
         'groups': 'ATS',
@@ -195,7 +228,7 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Bytes',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
         'description': 'ATS cache bytes used',
         'groups': 'ATS',
@@ -225,7 +258,7 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Bytes',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
         'description': 'ATS total bytes in use for memory cache',
         'groups': 'ATS',
@@ -235,7 +268,7 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Bytes',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
         'description': 'ATS Cache bytes purged or evacuated. Large numbers here may mean we need a larger cache size setting',
         'groups': 'ATS',
@@ -245,7 +278,7 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': 'Bytes',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
         'description': 'ATS cache purged or evacuated. Large numbers here may mean we need a larger cache size setting.',
         'groups': 'ATS',
@@ -257,7 +290,7 @@ def metric_init(params):
         'units': 'Client Conns',
         'slope': 'both',
         'format': '%u',
-        'description': 'ATS Current Server HTTP Conns. Watch this for overload',
+        'description': 'ATS Current client HTTP Conns to our cache server. Watch this for overload',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.http.current_server_connections',
@@ -270,14 +303,24 @@ def metric_init(params):
         'description': 'ATS Current Server HTTP Conns. Watch this for overload',
         'groups': 'ATS',
         },
+        {'name': 'ats_proxy.node.http.origin_server_current_connections_count',
+        'call_back': get_stats,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units': 'Origin Conns',
+        'slope': 'both',
+        'format': '%u',
+        'description': 'ATS Current Origin Server HTTP Conns. These are connections back to our origin server asking for objects or revalidation etc.. Watch this for overload',
+        'groups': 'ATS',
+        },
         {'name': 'ats_proxy.process.http.2xx_responses',
         'call_back': get_stats,
         'time_max': 60,
         'value_type': 'uint',
         'units': '2xx',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'ATS current 2xx HTTP response codes over 60 seconds',
+        'description': 'ATS current 2xx HTTP response codes over 30 seconds',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.http.3xx_responses',
@@ -285,9 +328,9 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': '3xx',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'ATS current 3xx HTTP response codes over 60 seconds',
+        'description': 'ATS current 3xx HTTP response codes over 30 seconds',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.http.4xx_responses',
@@ -295,9 +338,9 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': '4xx',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'ATS current 4xx HTTP response codes over 60 seconds',
+        'description': 'ATS current 4xx HTTP response codes over 30 seconds',
         'groups': 'ATS',
         },
         {'name': 'ats_proxy.process.http.5xx_responses',
@@ -305,9 +348,9 @@ def metric_init(params):
         'time_max': 60,
         'value_type': 'uint',
         'units': '5xx',
-        'slope': 'positive',
+        'slope': 'both',
         'format': '%u',
-        'description': 'ATS current 5xx HTTP response codes over 60 seconds',
+        'description': 'ATS current 5xx HTTP response codes over 30 seconds',
         'groups': 'ATS',
         }]
 
