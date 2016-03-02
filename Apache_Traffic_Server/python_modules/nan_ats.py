@@ -31,11 +31,11 @@ delta_list = [ 'proxy.process.http.cache_hit_fresh','proxy.process.http.cache_hi
                'proxy.process.http.cache_hit_revalidated', 'proxy.process.http.cache_hit_ims',
                'proxy.process.http.cache_hit_stale_served', 'proxy.process.http.cache_miss_cold',
 	       'proxy.process.http.cache_miss_changed', 'proxy.process.http.cache_miss_client_no_cache',
-               'proxy.process.http.cache_miss_client_not_cacheable ', 'proxy.process.http.cache_miss_ims',
+               'proxy.process.http.cache_miss_client_not_cacheable', 'proxy.process.http.cache_miss_ims',
                'proxy.process.cache.ram_cache.hits', 'proxy.process.cache.ram_cache.misses',
                'proxy.process.cache.gc_bytes_evacuated', 'proxy.process.cache.gc_frags_evacuated',
                'proxy.process.http.2xx_responses', 'proxy.process.http.3xx_responses',
-               'proxy.process.http.4xx_responses',  'proxy.process.http.5xx_responses' ]
+               'proxy.process.http.4xx_responses', 'proxy.process.http.5xx_responses' ]
 
 STATS_URL = 'http://10.132.227.145/_stats'
 
