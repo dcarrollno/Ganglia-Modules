@@ -3,23 +3,23 @@
 # One must research as to what they want to expose
 # This module requires the stats module be loaded in ATS
 # - Dave C.
-# davecarrollno@gmail.com
-#
-# https://github.com/dcarrollno/Ganglia-Modules/wiki
 
  modules {
    module {
      name = "nan_ats"
      language = "python"
      param RefreshRate {
-       value = 60
+       value = 30
+     }
+     param stats_url {
+       value = 'http://10.132.227.145/_stats'
      }
    }
  }
 
 collection_group {
-  collect_every = 60
-  time_threshold = 65
+  collect_every = 30
+  time_threshold = 35
 
 #  CACHE Hit/Miss Ratios
 
@@ -132,6 +132,16 @@ collection_group {
   metric {
     name = "ats_proxy.process.http.current_server_connections"
     title = "Current Server Conns"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.node.http.origin_server_current_connections_count"
+    title = "Current Origin Server Connections"
+    value_threshold = 1.0
+  }
+  metric {
+    name = "ats_proxy.process.net.connections_currently_open"
+    title = "Current Open File Handles"
     value_threshold = 1.0
   }
 

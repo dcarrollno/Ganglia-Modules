@@ -12,8 +12,7 @@ import copy
     via json and trends them in Ganglia.
 
     You must enable the stats modile in ATS.  We maintain a
-    list of metrics that we calc deltas on between runs. I
-    think this is cleaner than a series of conditionals.  We
+    list of metrics that we calc deltas on between runs. We
     could set a positive slope on these but I don't like that
     as much as performing the deltas myself.
 
@@ -23,10 +22,13 @@ __author__ = "Dave Carroll"
 
 
 last_time = 0
+curr_time = 0
 cache = 5
 json_data = {}
 METRICS = {}
 LAST_METRICS = {}
+curr_metrics = {}
+
 delta_list = [ 'proxy.process.http.cache_hit_fresh','proxy.process.http.cache_hit_mem_fresh',
                'proxy.process.http.cache_hit_revalidated', 'proxy.process.http.cache_hit_ims',
                'proxy.process.http.cache_hit_stale_served', 'proxy.process.http.cache_miss_cold',
@@ -37,56 +39,53 @@ delta_list = [ 'proxy.process.http.cache_hit_fresh','proxy.process.http.cache_hi
                'proxy.process.http.2xx_responses', 'proxy.process.http.3xx_responses',
                'proxy.process.http.4xx_responses', 'proxy.process.http.5xx_responses' ]
 
-STATS_URL = 'http://10.132.227.145/_stats'
-
 
 def get_json():
-    global last_time,json_data,last_time,METRICS
+    global json_data,METRICS,STATS_URL
 
     ''' Here we poll the json output and dict our metrics '''
 
-    if (time.time() - last_time > cache):
 
-        try:
-            json_data.clear()
-        except:
-            print("Unable to clear json_data")
+    # if we have a local file, use the following
+    #json_data = json.loads(open('ats_stats.json').read())
+    #for value in json_data['global']:
+    #    METRICS[value]=json_data['global'][value]
 
-        # if we have a local file, use the following
-        #json_data = json.loads(open('ats_stats.json').read())
-        #for value in json_data['global']:
-        #    METRICS[value]=json_data['global'][value]
+    #return(json_data)
 
-        #return(json_data)
+    try:
+        aResp = urllib2.urlopen(STATS_URL);
+        json_data = json.loads(aResp.read())
 
-        try:
-            aResp = urllib2.urlopen(STATS_URL);
-            json_data = json.loads(aResp.read())
-            for value in json_data['global']:
-                METRICS[value]=json_data['global'][value]
+    except:
+        print("Unable to download json")
 
-        except:
-            print("Unable to download json")
+    for value in json_data['global']:
+        METRICS[value]=json_data['global'][value]
 
-        return(METRICS)
-
-    else:
-        return
+    curr_time = time.time()
+    return(METRICS,curr_time)
 
 
 def get_stats(name):
-    global json_data, LAST_METRICS
+    global curr_metrics,LAST_METRICS,curr_time,last_time
 
-    METRICS = get_json()
-    if LAST_METRICS:
-        ''' check if cache primed '''
-        next
-    else:
-        LAST_METRICS = copy.deepcopy(METRICS)
+    if (time.time() - last_time > cache):       # Is cache expired?
+        LAST_METRICS=copy.deepcopy(curr_metrics)
         last_time = time.time()
+        [curr_metrics,curr_time]=get_json()
+    else:
+        print("Cache not expired..")
+
+    if not LAST_METRICS:                        # cache empty - only on first run of program
+        #print("Cache Miss: filling now...")      # yep, cache miss occurred
+        LAST_METRICS=copy.deepcopy(curr_metrics)  # prime cache
+        last_time = time.time()                   # set current timer
+    else:                                       # if cache exists, check age of cache
+        print("Cache hit")                        # otherwise we have cache hit inside timer
 
     name = re.sub('ats_','',name)
-    for k,v in METRICS.items():
+    for k,v in curr_metrics.items():
         if k == name:
   	    if name in delta_list:
                 v = int(v)
@@ -95,12 +94,15 @@ def get_stats(name):
                 #print("Delta is %s for metric %s" % (d1,name))
                 return int(d1)
             else:
+                #print("Metric %s is %s" % (name,v))
                 return int(v)
 
 
 
 def metric_init(params):
-    global descriptors
+    global descriptors,STATS_URL
+
+    STATS_URL = params.get('stats_url')
 
 
     descriptors = [{'name': 'ats_proxy.process.http.cache_hit_fresh',
@@ -313,6 +315,16 @@ def metric_init(params):
         'description': 'ATS Current Origin Server HTTP Conns. These are connections back to our origin server asking for objects or revalidation etc.. Watch this for overload',
         'groups': 'ATS',
         },
+        {'name': 'ats_proxy.process.net.connections_currently_open',
+        'call_back': get_stats,
+        'time_max': 60,
+        'value_type': 'uint',
+        'units': 'File Handles',
+        'slope': 'both',
+        'format': '%u',
+        'description': 'ATS Current connections - an indicator of open file handles',
+        'groups': 'ATS',
+        },
         {'name': 'ats_proxy.process.http.2xx_responses',
         'call_back': get_stats,
         'time_max': 60,
@@ -365,9 +377,12 @@ if __name__ == '__main__':
     #metric_init({})
     params=0
     metric_init ({
+        'stats_url' : 'http://10.132.227.145/_stats'
     })
     while True:
         for d in descriptors:
             v = d['call_back'](d['name'])
             print 'value for %s is %s' % (d['name'],  v)
+        LAST_METRICS = copy.deepcopy(METRICS)
+        last_time=time.time()
   	time.sleep(30)
