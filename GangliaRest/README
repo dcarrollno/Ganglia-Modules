@@ -1,0 +1,14 @@
+This module is incomplete as is, because it is part of 
+a package of dozens of tools I have built around Ganglia.
+
+You can find an explanation here:
+https://github.com/dcarrollno/Ganglia-Modules/wiki/Ganglia-API:-Nagios-Polling
+
+To use this you will need to disable my loglib calls or create/use 
+your own logging library and you will need a class that 
+polls metric values from RRD files and returns those. This is 
+explained in the above link. Apologies for not providing a 
+complete solution but part of the fun is adapting these things
+for your own use.  
+
+Have fun! 
