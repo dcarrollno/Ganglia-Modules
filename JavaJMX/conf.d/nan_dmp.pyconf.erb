@@ -1,0 +1,135 @@
+# DMP JMX Ganglia Module
+# Written for Nanigans
+# - Dave C.
+
+modules {
+  module {
+    name = 'nan_dmp<%= scope.lookupvar('jcport') %>'
+    language = 'python'
+
+    param host {
+      value = 'localhost'
+    }
+    param port {
+      value = '<%= scope.lookupvar('jcport') %>'
+    }
+    param jcuser {
+      value = '<%= scope.lookupvar('jcuser') %>'
+    }
+    param jcpass {
+      value = '<%= scope.lookupvar('jcpass') %>'
+    }
+    param name {
+      value = 'dmp<%= scope.lookupvar('jcport') %>'
+    }
+
+    # Classifies these metrics in this group in the web GUI
+    param metric_group {
+      value = 'dmp_<%= scope.lookupvar('jcport') %>'
+    }
+
+# java.lang  - General JVM Metrics
+    param thread_count {
+      value = '"java.lang:type=Threading" ThreadCount'
+    }
+    param daemon_thread_count {
+      value = 'java.lang:type=Threading DaemonThreadCount'
+    }
+    param peak_thread_count {
+      value = 'java.lang:type=Threading PeakThreadCount'
+    }
+    param processCpuLoad {
+      value = '"java.lang:type=OperatingSystem" ProcessCpuLoad'
+    }
+    param NonHeapMemoryUsage {
+      value = 'java.lang:type=Memory NonHeapMemoryUsage'
+    }
+    param HeapMemoryUsage {
+      value = 'java.lang:type=Memory HeapMemoryUsage'
+    }
+    param classLoads {
+      value = '"java.lang:type=ClassLoading" LoadedClassCount'
+    }
+    param classUnloads {
+      value = '"java.lang:type=ClassLoading" UnloadedClassCount'
+    }
+    param par_eden_space {
+      value = '"java.lang:type=MemoryPool,name=Par Eden Space" Usage'
+    }
+    param cms_old_gen_space {
+      value = '"java.lang:type=MemoryPool,name=CMS Old Gen" Usage'
+    }
+    param par_survivor_space {
+      value = '"java.lang:type=MemoryPool,name=Par Survivor Space" Usage'
+    }
+# Garbage Collection
+    param par_new_lastgcinfo {
+      value = 'java.lang:type=GarbageCollector,name=ParNew LastGcInfo'
+    }
+    param marksweep_lastgcinfo {
+      value = 'java.lang:type=GarbageCollector,name=ConcurrentMarkSweep LastGcInfo'
+    }
+
+  }
+}
+
+collection_group {
+  collect_every = 60
+  time_threshold = 50
+# Make sure metrics starts with jmx_
+
+# java.lang
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_thread_count'
+    title = "Thread Count <%= scope.lookupvar('jcport') %>"
+ }
+  metric {
+     name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_daemon_thread_count'
+     title = "Daemon Thread Count <%= scope.lookupvar('jcport') %>"
+ }
+  metric {
+     name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_peak_thread_count'
+     title = "Peak Thread Count <%= scope.lookupvar('jcport') %>"
+ }
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_processCpuLoad'
+    title = "Process CPU Load <%= scope.lookupvar('jcport') %>"
+ }
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_NonHeapMemoryUsage'
+    title = "NonHeap Usage <%= scope.lookupvar('jcport') %>"
+  }
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_HeapMemoryUsage'
+    title = "Heap Mem Usage <%= scope.lookupvar('jcport') %>"
+  }
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_classLoads'
+    title = "Classes Loaded <%= scope.lookupvar('jcport') %>"
+  }
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_classUnloads'
+    title = "Classes Unloaded <%= scope.lookupvar('jcport') %>"
+  }
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_par_eden_space'
+    title = "Par Eden Space <%= scope.lookupvar('jcport') %>"
+  }
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_cms_old_gen_space'
+    title = "CMS Old Gen Space <%= scope.lookupvar('jcport') %>"
+  }
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_par_survivor_space'
+    title = "Par Survivor Space <%= scope.lookupvar('jcport') %>"
+  }
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_par_new_lastgcinfo'
+    title = "Par New GC <%= scope.lookupvar('jcport') %>"
+  }
+  metric {
+    name = 'jmx_dmp<%= scope.lookupvar('jcport') %>_marksweep_lastgcinfo'
+    title = "Marksweep Last GC <%= scope.lookupvar('jcport') %>"
+  }
+
+} # end Block

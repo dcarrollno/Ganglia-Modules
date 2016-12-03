@@ -1,0 +1,20 @@
+This Ganglia module is one example of how we monitor JMX metrics across
+a large variety of systems. The bulks of this is borrowed from the project
+https://code.google.com/archive/p/jmxsh/ but has been adapted and modified 
+to suit the needs of my team. 
+
+The files included are left in .erb format as it is part of
+a Puppet template.  If you want to use this you will need to edit those
+tags out or adapt them to your own. 
+
+You will also need the jmx.jar file available at the project site noted
+above. 
+
+I decided to group the metrics I am interested in and thread these to 
+improve performance and segment the metrics I am collecting to protect
+against full metric failure when someone changes a bean.  I typically
+therefore have a java.lang group that collects memory, heap, threads 
+info etc.. and a metric group that collects specific app metrics in a 
+separate thread. 
+
+

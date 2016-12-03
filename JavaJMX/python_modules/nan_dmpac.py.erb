@@ -1,0 +1,326 @@
+#!/usr/bin/python
+
+''' This module allows for pulling defined metrics from the
+    complete pain in the ass that JMX is with its binary metrics.
+    Initially it began with Google project code but that wasn't refined
+    as each time a bean changed, the entire module would die. To try
+    and improve upon this I divded the metrics up by category and resorted
+    to breaking them out into threads so full-stop scenarios were minimized.
+    
+    This works pretty well for us but can probably be improved upon.  
+    
+    Credit:  https://code.google.com/archive/p/jmxsh/
+
+    - Dave C. '''
+
+
+import os
+import threading
+import time
+import subprocess
+import traceback, sys, re
+import tempfile
+from nan_defs import descDefs,descUnits
+
+descriptors = []
+last_update = 0
+STATS = {}
+COMP = {}
+last_val = {}
+METRICS = {}
+JMXSH = '/usr/lib64/ganglia/python_modules/jmxsh.jar'
+HOST = 'localhost'
+PORT = '<%= scope.lookupvar('jcport') %>'
+USER = '<%= scope.lookupvar('jcuser') %>'
+PASSWORD = '<%= scope.lookupvar('jcpass') %>'
+NAME = '<%= scope.lookupvar('mgroup') %>'
+METRIC_GROUP = '<%= scope.lookupvar('mgroup') %>'
+
+
+def get_numeric(val):
+    '''Try to return the numeric value of the string'''
+    try:
+        return float(val)
+    except:
+        pass
+    return val
+
+def get_gmond_format(val):
+    '''Return the formatting and value_type values to use with gmond'''
+    tp = type(val).__name__
+
+    if tp == 'int':
+        return ('uint', '%u')
+    elif tp == 'float':
+        return ('float', '%.4f')
+    elif tp == 'string':
+        return ('string', '%u')
+    else:
+        return ('string', '%u')
+
+
+def update_stats(statsDict):
+    ''' main function to gather stats '''
+
+    global STATS,last_val,last_update
+
+    sh  = '# jmxsh\njmx_connect -h ' + HOST + ' -p ' + PORT + ' -U ' + USER + ' -P ' + PASSWORD + '\n'
+    for name,mbean in statsDict.items():
+        sh += 'puts "' + name + ': [jmx_get -m ' + mbean + ']"\n'
+
+    try:
+        cmd = "java -jar " + JMXSH + " -q"
+        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = p.communicate(sh)
+        #print(sh)
+
+        if p.returncode:
+            print("ERROR: p.returncode indicated an error while running script. Error %s" % cmd)
+    except:
+        print("WARN: Error running jmx script")
+
+    try:
+        # now parse out the values
+        for line in out.strip().split('\n'):
+            params = line.split(': ')
+            name = params[0]
+            val = params[1]
+            #print(name,val)
+
+            if 'CompositeDataSupport' in val:
+                # break up the composite data into separate values
+                composite_contents = re.search('{(.*?)}', val, re.DOTALL)
+                if composite_contents:
+                    for composite_vals in composite_contents.group(1).split(', '):
+                        _params = composite_vals.split('=')
+                        _name = name + '_' + _params[0]
+                        _val = _params[1]
+
+                        STATS[_name] = get_numeric(_val)
+                else:
+                    print("WARN: Failed extracting composite values for %s" % name)
+                    continue
+
+                continue
+            try:
+                comp = COMP[name]
+                if 'diff' in comp:
+                    val = int(val)
+                    if name in last_val:
+                        if val > last_val[name]:
+                            STATS[name] = val - last_val[name]
+                        else:
+                            print("value was reset since last update")
+                            STATS[name] = 0
+                    else:
+                        STATS[name] = 0
+
+                    last_val[name] = val
+
+                elif 'delta' in comp:
+                    val = float(val)
+                    interval = cur_time - last_update
+                    if name in last_val and interval > 0:
+                        if val > last_val[name]:
+                            STATS[name] = (val - last_val[name]) / float(interval)
+                        else:
+                            # value was reset since last update
+                            STATS[name] = 0.0
+                    else:
+                        STATS[name] = 0.0
+
+                    last_val[name] = val
+
+            #except KeyError:
+            except:
+                #print("Error under KeyError - no comp or diff - who cares?")
+                STATS[name] = get_numeric(val)
+
+    except:
+        print("ERROR: New_Tomcat: Error parsing in update_stats")
+        return False
+    cur_time = time.time()
+    last_update = cur_time
+    return True
+
+
+def get_stats(statsToCheck):
+    ''' This function launches threads to check metrics by
+        metric group. - Dave C. '''
+    threads = []
+    for each in statsToCheck:
+        t = threading.Thread(target=update_stats, args=(each,))
+        threads.append(t)
+        t.start()
+        # Wait for thread to return before trying to process metric result
+        t.join()
+
+    # Now we have the STATS dict full of metric names and values
+    return()
+
+
+def createMiniDicts():
+    ''' This function will create mini dicts of
+        metrics to be polled. We group them so we
+        can thread the queries which limits full failures
+        when dev changes a bean and doesn't inform us - Dave C. '''
+
+    # Start with already-defined Java.lang metrics and break into mini-dicts - jvm standard
+
+    if METRIC_GROUP == '<%= scope.lookupvar('mgroup') %>': 
+    
+        javaLang = (dict((key,value) for key, value in METRICS.iteritems() if value.startswith(('java.lang','"java.lang'))))
+        <%= scope.lookupvar('mgroup') %> = (dict((key,value) for key, value in METRICS.iteritems() if value.startswith(('com.nanigans','"com.nanigans'))))
+
+
+        statsToCheck = [javaLang,<%= scope.lookupvar('mgroup') %>]
+
+
+    #print statsToCheck
+    return(statsToCheck)
+
+
+def get_values(name):
+    ''' Here we scan the stats dict and return
+        values back to metric_init callbacks by
+        metric name. Since we ran the get_stats function
+        once at init, we need to call it again to get metrics
+        once loaded in memory. - Dave C. '''
+
+    # Need a timed throttle so we don't hose the jvm
+    if time.time() - last_update > 5:
+        get_stats(statsToCheck)
+
+    # Parse the STATS dict for values by name
+    #print("STATS now includes: %s" % STATS)	#debug
+
+    if STATS:
+        first = 'jmx_' + NAME + '_'
+        if name.startswith(first):
+            label = name[len(first):]
+            #print("Label is: %s" % label)
+        else:
+            #print("WARN: name didn't start with first")
+            label = name
+            #print label
+        try:
+            #print("DEBUG: %s is %s" % (name,STATS[label]))
+            return STATS[label]
+        except:
+            #print("Warn: cannot return STATS[label]")
+            return 0
+    else:
+        #print("STATS not populated, returning 0")
+        return 0
+
+
+def metric_init(params):
+    ''' Required by Ganglia, this function defines
+        metrics to be called and is run once at start. '''
+
+    global descriptors,METRICS,METRIC_GROUP,statsToCheck
+    
+    try:
+        HOST = params.pop('host')
+        PORT = params.pop('port')
+        NAME = params.pop('name')
+        METRIC_GROUP = params.pop('metric_group')
+        
+    except:
+        print("WARN: Incorrect parameters")
+
+    # Set up metric variables from params
+    for name,mbean in params.items():
+        val = mbean.split('##')
+        METRICS[name] = val[0]
+        ''' Now METRICS holds k/v of metrics defined in pyconf
+            and we need this first to create the thread pools
+            by metric group so we can divide up these when we
+            call jmxsh to limit and isolate failures when beans
+            change. '''
+
+
+        # If optional delta/diff exists in value
+        try:
+            #COMP[name] = val[1]
+            COMP['par_new_coll_count']='diff'
+            COMP['marksweep_coll_count']='diff'
+
+        except IndexError:
+            pass
+
+    # Create MiniDicts
+    statsToCheck = createMiniDicts()
+    #print statsToCheck
+
+
+    # Run once to prime dynamic descriptors
+    get_stats(statsToCheck)
+
+    # Dynamically build descriptors based upon first run
+    descriptions = dict()
+    for name in STATS:
+        (value_type, format) = get_gmond_format(STATS[name])
+        descriptions[name] = {
+            'value_type': value_type,
+            'format': format
+        }
+
+    time_max = 60
+    for label in descriptions:
+        if STATS.has_key(label):
+
+            d = {
+                'name': 'jmx_' + NAME + '_' + label,
+                'call_back': get_values,
+                'time_max': time_max,
+                'value_type': 'float',
+                'units': '',
+                'format': '%u',
+                'slope': 'both',
+                'description': label,
+                'groups': METRIC_GROUP
+            }
+
+            if label in descDefs:
+                descrip = descDefs[label]
+                d['description']=descrip
+
+            if label in descUnits:
+                unit = descUnits[label]
+                d['units']=unit
+
+            #print d
+            # Apply metric customizations from descriptions
+            d.update(descriptions[label])
+            descriptors.append(d)
+
+        else:
+            print("ERROR: Applying metric customization during descriptor building")
+
+    return descriptors
+
+
+def metric_cleanup():
+    pass
+
+
+if __name__ == '__main__':
+    '''We use the following for testing '''
+
+    params = {}
+    params['host']='localhost'
+    params['port'] = '<%= scope.lookupvar('jcport') %>'
+    params['name'] = '<%= scope.lookupvar('mgroup') %>'
+    params['metric_group'] = '<%= scope.lookupvar('mgroup') %>'
+    params['HeapMemoryUsage']='"java.lang:type=Memory" HeapMemoryUsage'
+    params['NonHeapMemoryUsage']='"java.lang:type=Memory" NonHeapMemoryUsage'
+
+    metric_init(params)
+
+    while True:
+        for d in descriptors:
+            v = d['call_back'](d['name'])
+            #print' %s: %s %s [%s]' % (d['name'], d['format'] % v, d['units'], d['description'])
+            print 'value for %s is %s' % (d['name'], v)
+        time.sleep(5)
