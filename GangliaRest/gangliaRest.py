@@ -14,7 +14,7 @@ from loglib import loglib
        easy_install web.py
        pip install netifaces
 
-       FYI: This requies classes not included that are
+       FYI: This requires classes not included that are
        part of packages I am unable to share so you will
        need to disable loglib, or substitute your own in.
 
