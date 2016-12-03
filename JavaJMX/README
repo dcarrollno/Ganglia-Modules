@@ -1,5 +1,5 @@
 This Ganglia module is one example of how we monitor JMX metrics across
-a large variety of systems. The bulks of this is borrowed from the project
+a large variety of systems. The bulk of this is borrowed from the project
 https://code.google.com/archive/p/jmxsh/ but has been adapted and modified 
 to suit the needs of my team. 
 
