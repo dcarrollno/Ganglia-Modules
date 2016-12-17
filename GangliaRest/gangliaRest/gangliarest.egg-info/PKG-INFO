@@ -1,0 +1,29 @@
+Metadata-Version: 1.0
+Name: gangliarest
+Version: 0.1
+Summary: A ReSTFUL frontend to Ganglia exposing metrics via HTTP.
+Home-page: https://github.com/dcarrollno/Ganglia-Modules/tree/master/GangliaRest
+Author: Dave Carroll
+Author-email: davecarrollno@gmail.com
+License: Creative Commons Attribution-Noncommercial-Share Alike license
+Description: GangliaRest
+        (desc here)
+        
+        Installing
+        sudo pip install gangliarest
+        
+        Usage
+        service GangliaRest [start|stop|restart\
+        
+        Example
+        
+        
+        
+Keywords: Ganglia API REST
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: System Administrators
+Classifier: Topic :: System :: Monitoring
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Operating System :: POSIX :: Linux

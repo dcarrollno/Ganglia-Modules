@@ -1,42 +1,56 @@
+#!/usr/bin/python
+
 #
-# This file is part of ganglia_tools
-#
-# Dave C. 2013
+# This file part of the gangliaRest package
 #
 
 import os
 import re
 import sys
 import redis
-import read_config as cfg
-import db_lookup
 from loglib import loglib
+import read_config as cfg
 
-
-''' <snipped this class, Check_Redis_GangliaRest out of my check_redis module > '''
-
+cfg.readConfig()
 
 class Check_Redis_GangliaRest(object):
-    ''' This class is responsible for handling our Ganglia RRD locations '''
+    ''' This class is responsible for handling our Ganglia RRD locations.
+        We use a Redis DB instance to cache file system locations to lessen
+        walking the filesystem when locating metrics under the rrd tree. ''' 
 
-    rootDir = '/var/lib/ganglia/rrds/'
-    logfile = '/var/log/GangliaRest.log'
+
+    rootDir = cfg.rrdDir 
+    logfile = cfg.logfile 
 
     def __init__(self,hostname):
-        ''' We are looking for hostnames in our rrd tree '''
+        ''' We are looking for our hostnames in our rrd tree '''
 
         self.hostname = hostname
 
 
+    def is_redis_available(self,conn):
+        ''' Check if Redis running and available '''
+
+        try:
+            conn.get(None)  # getting None returns None or throws an exception
+
+        except (redis.exceptions.ConnectionError, 
+            redis.exceptions.BusyLoadingError):
+            loglib(self.logfile,"WARN: Redis did not respond. Check to ensure it is running")
+            return False
+
+        return True
+
+
     def redis_lookup(self):
 
-        print("Looking up %s" % self.hostname)
-
         r = redis.Redis(
-	    host = 'localhost',
-  	    port = 6379,
-            db = 1,
-            password = '############')
+	    host = cfg.redisHost,
+  	    port = cfg.redisPort,
+            db = cfg.redisDb,
+            password = cfg.redisAuth)
+
+        redisStatus = self.is_redis_available(r)
 
 	# Check our cache for host location
         if r.exists(self.hostname):
@@ -54,14 +68,14 @@ class Check_Redis_GangliaRest(object):
 			    or simply by hostname, or we will fail to locate '''
                         if host.startswith(self.hostname):
 			    self.hostname = host	# reset the host to the correct name on fs
-			    #loglib(self.logfile,"INFO: Host being set as %s" % self.hostname)
+			    loglib(self.logfile,"INFO: Host being set as %s" % self.hostname)
 		            self.location = os.path.abspath(dirName+'/'+self.hostname)
 
 			    ''' Now we need to add to our Redis cache with a TTL of one day
 				to account for transitory systems like VM's that spin down '''
 			    try:
 			        #print("Setting key for %s and val %s" % (self.hostname,self.location))
-			        r.setex(self.hostname, self.location, 86400)
+			        r.setex(self.hostname, self.location, 60)
 			        return(self.location)
 
 	                    except:
@@ -69,9 +83,17 @@ class Check_Redis_GangliaRest(object):
 			        exit(1)
 
 		        else:
-			    #loglib(self.logfile,"ERROR: Unable to find requested host in rrdtree under Check_Redis_GangliaRest:redis_lookup")
+			    loglib(self.logfile,"ERROR: Unable to find requested host in rrdtree under Check_Redis_GangliaRest:redis_lookup")
 			    continue  # we don't want to log every miss
 
 
             except:
 	        loglib(self.logfile,"ERROR: Unable to find or write to Redis requested host in rrdtree under Check_Redis_GangliaRest:redis_lookup")
+
+
+if __name__ == "__main__":
+
+    ''' Test code here ''' 
+
+    handle = Check_Redis_GangliaRest('netwatch')
+    handle.redis_lookup()

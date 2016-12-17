@@ -12,7 +12,7 @@
 
 # chkconfig --add GangliaRest when done
 #
-# Dave Carroll
+# Dave Carroll davecarrollno@gmail.com
 # This service provides a RESTful API for access to Ganglia metrics.
 #
 
@@ -34,11 +34,11 @@ start() {
 	RETVAL=$?
 	echo
 	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/GangliaRest
-        sleep 1
-        PID=`ps -ef | grep '[p]ython /usr/local/sbin/GangliaRest' | awk '{ print $2 }'`
-        echo $PID > $PIDFILE
+    sleep 1
+    PID=`ps -ef | grep '[p]ython /usr/local/sbin/GangliaRest' | awk '{ print $2 }'`
+    echo $PID > $PIDFILE
 	return $RETVAL
-       }
+}
 
 stop() {
 	echo -n $"Stopping $prog: "
@@ -46,18 +46,18 @@ stop() {
 	RETVAL=$?
 	echo
 	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/GangliaRest
-        rm -rf $PIDFILE
+    rm -rf $PIDFILE
 	return $RETVAL
-       }
+}
 
 rhstatus() {
 	status GangliaRest
-       }
+}
 
 restart() {
   	stop
 	start
-       }
+}
 
 reload() {
 	echo -n $"Reloading GangliaRest daemon configuration: "
@@ -65,7 +65,7 @@ reload() {
 	retval=$?
 	echo
 	return $RETVAL
-        }
+}
 
 case "$1" in
   start)

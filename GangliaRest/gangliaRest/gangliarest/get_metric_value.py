@@ -1,5 +1,6 @@
+#!/usr/bin/python
 #
-# This file is part of ganglia_tools
+# This file is part of gangliaRest_
 #
 # Dave C. 2013
 #
@@ -15,7 +16,7 @@ class GetMetricValue(object):
 
 
     def __init__(self,nodepath,activeList):
-        ''' ''' 
+        ''' '''
 
         self.nodepath = nodepath
         self.activeList = activeList
@@ -28,6 +29,7 @@ class GetMetricValue(object):
 
         for self.metric in self.activeList:
             #print("Checking metric %s located at path %s" % (self.metric,self.nodepath))
+            loglib(cfg.logfile,"INFO: Checking metric %s located at %s" % (self.metric,self.nodepath))
             cmd3 = ' | grep "last_ds"'
             newcmd = '/usr/bin/rrdtool info '+ self.nodepath+'/'+self.metric + cmd3
             # Get last_ds and file name from rrdtool for each api_https metric
@@ -45,11 +47,19 @@ class GetMetricValue(object):
 
                 self.to_sort[self.metric]=self.val
                 #print("Metric %s has a value of %s" % (self.metric,self.val))
-                #loglib(logfile,'INFO: LastDS for %s on node %s is %s' % (self.metric,self.sname,val))
+                loglib(logfile,'INFO: LastDS for %s is %s' % (self.metric,self.val))
 
-            except:
-                loglib(logfile,'WARN: Unable to get last ds for metric %s' % self.metric)
+            except Exception as e:
+                loglib(logfile,'ERROR: Unable to get last ds for metric %s. Error thrown was %s' % (self.metric,e))
+                #print e
                 #print("Unable to get last ds for metric %s" % self.metric)
-                continue
+	        continue
 
 
+if __name__ == "__main__":
+
+
+    nodepath = '/var/lib/ganglia/rrds/IT-Servers/netwatch'
+    metric = ['diskstat_sda_io_time.rrd']
+
+    res = GetMetricValue(nodepath,metric)
