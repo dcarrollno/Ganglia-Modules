@@ -4,12 +4,15 @@ import os
 import sys
 import re
 import web
+import time
 import signal
+import threading
 import netifaces as ni
 import get_metric_value as gmv
 import read_config as cfg
 from check_redis import Check_Redis_GangliaRest
 from loglib import loglib
+import indexer
 
 ''' /* This module requires:
        easy_install web.py
@@ -19,6 +22,8 @@ from loglib import loglib
 
 web.config.debug = False
 statefile = '/tmp/gangliaRest.state'
+
+
 
 class GangliaRest(object):
     ''' Here we prime the web api to accept specific requests for
@@ -41,9 +46,11 @@ class GangliaRest(object):
 
         loglib(cfg.logfile,"INFO: Started GangliaRest on IP %s and port %s" % (self.host,self.port))
 
+
     def printit(self):
 
         print("Listening on %s with port %s" % (self.host,self.port))
+
 
 
 class Test(object):
@@ -51,6 +58,49 @@ class Test(object):
     def GET(self,arg):
         resp = "Hello"+arg
         return(resp)
+
+
+
+class BackgroundIndexer(object):
+    """ Threading example class
+    The run() method will be started and it will run in the background
+    until the application exits. """
+
+
+    def __init__(self, interval=60):
+        """ Constructor """
+
+        # Time in secs to check if time to index
+        self.interval = interval
+
+        thread = threading.Thread(target=self.run, args=())
+        thread.daemon = True                            # Daemonize thread
+        thread.start()                                  # Start the execution
+
+    def run(self):
+        """ Method that runs forever """
+
+        while True:
+            #print('Checking if time to run indexer')   #debug
+            self.now = time.time()
+            try:
+                if self.last_check:
+                    self.diff = self.now - self.last_check
+                    if self.diff > cfg.indexFreq:
+                        loglib(cfg.logfile,"INFO: Timer indicates indexer needs to run. Starting indexing")
+                        run_indexer = indexer.GangliaIndexer()
+                        run_indexer.indexTimer()
+                        self.last_check = time.time()  # reset last_check timer
+                    else:
+                        #print("Not time to run indexer")  # debug
+                        loglib(cfg.logfile,"INFO: Timer indicates no need to run indexing. Sleeping for now")
+                        #pass
+            except:
+                # Setting first marker 
+                self.last_check = self.now
+
+            time.sleep(self.interval)
+
 
 
 class GetMetric(object):
@@ -70,7 +120,6 @@ class GetMetric(object):
         print("Reqs %s" % reqsCount)
         print("Resp %s" % respCount)
         print("Error %s" % errorCount)
-
 
 
     def locate_file(self,node,file):
@@ -116,30 +165,39 @@ class GetMetric(object):
 
         loglib(cfg.logfile,'REQUEST: request for metric %s on node %s' % (self.req,self.node))
 
-	locateDir = Check_Redis_GangliaRest(self.node)
-        self.hostLocation = locateDir.redis_lookup()
+        try:
+	    locateDir = Check_Redis_GangliaRest(self.node)
+            self.hostLocation = locateDir.redis_lookup()
+        except:
+            print("Error: Node not found in Redis cache or on filesystem")
+            return('Not Found')
+
+        if self.hostLocation is None:
+            loglib(cfg.logfile,"WARN: Request for %s yielded no results" % self.node)
+            # Return a simple error for scripts to parse
+            return('Not_Found') 
+ 
         self.metric = [i for i in os.listdir(self.hostLocation) if i == self.req]
 
-        loglib(cfg.logfile,'INFO: Found location as %s' % self.hostLocation)
-        loglib(cfg.logfile,'INFO: Checking metric %s' % self.metric)
+        #loglib(cfg.logfile,'INFO: Found location as %s' % self.hostLocation)
+        #loglib(cfg.logfile,'INFO: Checking metric %s' % self.metric)
 
         GetMetric.reqsCount +=1
 
         self.metric_list.append(self.req)
 
-        loglib(cfg.logfile,'Appending %s to metric_list' % self.metric)
-        loglib(cfg.logfile,'Sending %s and %s to gmv' % (self.hostLocation,self.metric_list))
+        #loglib(cfg.logfile,'Appending %s to metric_list' % self.metric)
+        #loglib(cfg.logfile,'Sending %s and %s to gmv' % (self.hostLocation,self.metric_list))
 
         ans = gmv.GetMetricValue(self.hostLocation,self.metric_list)
 
         try:
             for k,v in ans.to_sort.items():
-                #print k,v
                 loglib(cfg.logfile,"RESPONSE: returning value of %s for metric %s" % (k,v))
                 GetMetric.respCount +=1
         except Exception as e:
             GetMetric.errorCount +=1
-            print(e)
+            #print(e)
             loglib(cfg.logfile,"ERROR: Error thrown was %s" % e)
 
         with open(statefile,'w') as f:
@@ -149,6 +207,7 @@ class GetMetric(object):
 
 
         return(v)
+
 
 
 def set_exit_handler(func):
@@ -175,5 +234,5 @@ if __name__ == "__main__":
     listenIp = get_Eth0()
  
     cfg.readConfig()
-
+    backgroundIndexer = BackgroundIndexer()
     gangliarest = GangliaRest(host=listenIp,port=8653)

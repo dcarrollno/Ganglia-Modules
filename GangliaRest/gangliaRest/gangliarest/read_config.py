@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #
 # This file is part of gangliaRest
 #
@@ -8,14 +7,27 @@
 import ConfigParser
 import sys 
 import re
-from loglib import loglib
+
+
+redis_conf_file = '/etc/redis.conf'
+
+def get_redis_auth():
+    with open(redis_conf_file, 'r') as f:
+        for line in f:
+            if line.startswith('requirepass'):
+                (label,pw) = line.split()
+                return(pw)
+            if line.startswith('#requirepass'):
+                return(False)
+ 
 
 def readConfig():
     ''' Here we ingest the /etc/GangliaRest.cfg options. These options are only
         read once at startup of GangliaRest so any change to options requires a restart. '''
 
 
-    global Config,redisHost,redisAuth,redisPort,redisDb,logfile,rrdDir,restPort,restHost,domain
+    global Config,redisHost,redisAuth,redisPort,redisDb,logfile,rrdDir,restPort, \
+           restHost,domain,indexFreq,redisTtl,logLevel
 
 
     Config = ConfigParser.ConfigParser()
@@ -26,26 +38,23 @@ def readConfig():
     restPort = int(restPort)
     domain = Config.get('Globals','domain')
     logfile = Config.get('Globals','logfile')
+    logLevel = Config.get('Globals','logLevel')
     rrdDir = Config.get('Globals','rrdDir')
 
     redisHost = Config.get('Redis','redisHost')
     redisPort = Config.get('Redis','redisPort')
     redisPort = int(redisPort)
     redisDb = Config.get('Redis','redisDb')
-    redisAuth = Config.get('Redis','redisAuth')
+    redisDb = int(redisDb)
+    redisTtl = Config.get('Redis','redisTtl')
+    redisTtl = int(redisTtl)
+    redisAuth = get_redis_auth()
 
-    loglib(logfile,"INFO: Reading /etc/GangliaRest.cfg")
+    indexFreq = Config.get('Indexer','indexFreq')
+    indexFreq = int(indexFreq)
 
 
 if __name__ == "__main__":
 
     readConfig()
-    print restHost
-    print restPort
-    print domain
-    print logfile
-    print rrdDir
-    print redisHost
-    print redisPort
-    print redisDb
-    print redisAuth
+    print(logLevel)

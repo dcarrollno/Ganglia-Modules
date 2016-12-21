@@ -1,8 +1,8 @@
-#!/usr/bin/python
 #
-# This file is part of gangliaRest_
+# This file is part of gangliarest
 #
-# Dave C. 2013
+# Dave C. - davecarrollno@gmail.com 
+#
 #
 
 import os,sys,re
@@ -29,7 +29,7 @@ class GetMetricValue(object):
 
         for self.metric in self.activeList:
             #print("Checking metric %s located at path %s" % (self.metric,self.nodepath))
-            loglib(cfg.logfile,"INFO: Checking metric %s located at %s" % (self.metric,self.nodepath))
+            #loglib(cfg.logfile,"INFO: Checking metric %s located at %s" % (self.metric,self.nodepath))
             cmd3 = ' | grep "last_ds"'
             newcmd = '/usr/bin/rrdtool info '+ self.nodepath+'/'+self.metric + cmd3
             # Get last_ds and file name from rrdtool for each api_https metric
@@ -59,7 +59,7 @@ class GetMetricValue(object):
 if __name__ == "__main__":
 
 
-    nodepath = '/var/lib/ganglia/rrds/IT-Servers/netwatch'
+    nodepath = '/var/lib/ganglia/rrds/<cluster>/<node>'
     metric = ['diskstat_sda_io_time.rrd']
 
     res = GetMetricValue(nodepath,metric)

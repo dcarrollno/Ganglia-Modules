@@ -20,6 +20,15 @@ def loglib(logfile,message):
     '''
 
     import logging
+    import read_config as cfg
+
+    #readConfig()   # todo: enable options in cfg to control logging
+
+    #logLevel = 'logging.'+cfg.logLevel
+
+
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s Thread-%(thread)d - %(message)s", filename=logfile)
+
     logging.debug(message)
+
     return()
