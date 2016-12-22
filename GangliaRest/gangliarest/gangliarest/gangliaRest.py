@@ -1,4 +1,16 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
+########################################
+#
+# This file part of the gangliarest package
+#
+# https://pypi.python.org/pypi/gangliarest
+#
+# https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I
+#
+# Dave Carroll - davecarrollno@gmail.com
+#
+########################################
 
 import os
 import sys

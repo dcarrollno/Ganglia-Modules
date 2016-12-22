@@ -1,11 +1,12 @@
 Metadata-Version: 1.0
 Name: gangliarest
-Version: 0.1.4
+Version: 0.1.6
 Summary: A ReSTFUL frontend to Ganglia exposing metrics via HTTP.
-Home-page: https://github.com/dcarrollno/Ganglia-Modules/tree/master/GangliaRest
+Home-page: https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I
 Author: Dave Carroll
 Author-email: davecarrollno@gmail.com
 License: UNKNOWN
+Download-URL: https://github.com/dcarrollno/Ganglia-Modules/tree/master/GangliaRest
 Description: GangliaRest
         ===========
         
@@ -28,7 +29,8 @@ Description: GangliaRest
         custom API client but over time we decided keeping things straightforward was best.
         
         I use Redis to cache the locations for nodes in the RRDtree so metric lookups
-        are more efficient. (we have hundreds of nodes we trend) 
+        are more efficient. (we have hundreds of nodes we trend) A configurable threaded
+        Indexer will prime and keep the Redis cache healthy.
         
         With GangliaRest, one can expose metrics without reading the XML stream, create
         on-demand monitoring integrate something like Nagios, or create cluster manager 

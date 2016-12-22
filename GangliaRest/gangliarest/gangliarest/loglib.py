@@ -1,9 +1,14 @@
+########################################
 #
+# This file part of the gangliarest package
 #
-# This file is part of ganglia_tools
+# https://pypi.python.org/pypi/gangliarest
 #
-# Dave Carroll - davecarrollno@gmail.com 
+# https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I
 #
+# Dave Carroll - davecarrollno@gmail.com
+#
+########################################
 
 
 def loglib(logfile,message):

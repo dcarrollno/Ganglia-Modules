@@ -33,12 +33,13 @@ class PostInstall(install):
 
 setup(
     name='gangliarest',
-    version='0.1.4',
+    version='0.1.6',
     author="Dave Carroll",
     author_email="davecarrollno@gmail.com",
     description=("A ReSTFUL frontend to Ganglia exposing metrics via HTTP."),
     keywords = "Ganglia API REST Web frontend metrics", 
-    url="https://github.com/dcarrollno/Ganglia-Modules/tree/master/GangliaRest",
+    url="https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I",
+    download_url="https://github.com/dcarrollno/Ganglia-Modules/tree/master/GangliaRest",
     packages=['gangliarest'],
     long_description=open('README.txt').read(),
     classifiers=[

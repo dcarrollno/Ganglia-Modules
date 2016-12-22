@@ -1,6 +1,12 @@
 # gangliarest changelog
 # Dave Carroll - davecarrollno@gmail.com
 
+## 0.16 - 12-21-2016
+- Added Download_url and made changes to homepage location
+
+## 0.15 - 12-21-2016
+- Added download_url with background
+
 ## 0.14 - 12-21-2016
 - Added cache prime operation on startup to improve performance and reliability 
 

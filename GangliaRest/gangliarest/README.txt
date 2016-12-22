@@ -20,7 +20,8 @@ upon the result. I initially returned formatted json responses and had Nagios us
 custom API client but over time we decided keeping things straightforward was best.
 
 I use Redis to cache the locations for nodes in the RRDtree so metric lookups
-are more efficient. (we have hundreds of nodes we trend) 
+are more efficient. (we have hundreds of nodes we trend) A configurable threaded
+Indexer will prime and keep the Redis cache healthy.
 
 With GangliaRest, one can expose metrics without reading the XML stream, create
 on-demand monitoring integrate something like Nagios, or create cluster manager 
