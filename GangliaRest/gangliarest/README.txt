@@ -66,6 +66,21 @@ Run service GangliaRest start when you are ready.  A pid file will be dropped in
 GangliaRest should now be listening on port 8653 or whatever you selected in 
 /etc/GangliaRest.cfg.   
 
+Upgrading
+---------
+GangliaRest will check on startup and once per day for any available upgrades.
+These may include important bug fixes or enhancements so please consider upgrading
+when you see a message in the logfile informing you of an upgrade. 
+
+To upgrade run the following commands:
+system# service GangliaRest stop
+system# pip install gangliarest --upgrade 
+
+The upgrader will copy your /etc/GangliaRest.cfg file as GangliaRest.cfg.save so you 
+will not lose your changes. You can then merge those changes into the newly created 
+GangliaRest.cfg file.
+
+
 Usage
 -----
 Once running, you can send HTTP requests against GangliaRest using a URL formatted

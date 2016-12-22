@@ -4,6 +4,7 @@ from codecs import open
 from os import path
 import os
 import sys
+from shutil import copyfile
 
 here = path.abspath(path.dirname(__file__))
 
@@ -22,18 +23,29 @@ class PostInstall(install):
         mode = 0751
         src = '/usr/lib/python'+version+'/site-packages/gangliarest/gangliaRest.py'
         dst = '/usr/local/sbin/GangliaRest'
+        cfg_file = '/etc/GangliaRest.cfg'
+        new_cfg_file = 'etc/GangliaRest.cfg'
+
         install.run(self)
-        os.symlink(src,dst) 
+        if not os.path.exists(dst):
+            os.symlink(src,dst) 
+        if os.path.exists(cfg_file):
+            os.rename(cfg_file, cfg_file+'.save')
+            print("Backed up original config file as %s.save" % cfg_file)
+            copyfile(new_cfg_file,cfg_file) 
+
         for dirpath, dirnames, filenames in os.walk(pkg):
             for filename in filenames:
                 path = os.path.join(dirpath, filename)
                 os.chmod(path, 0751)
+  
+        print("New /etc/GangliaRest.cfg file has been installed. Be sure to reconfigure.")
         
 
 
 setup(
     name='gangliarest',
-    version='0.1.8',
+    version='0.1.9',
     author="Dave Carroll",
     author_email="davecarrollno@gmail.com",
     description=("A ReSTFUL frontend to Ganglia exposing metrics via HTTP."),

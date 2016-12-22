@@ -1,30 +1,38 @@
 # gangliarest changelog
 # Dave Carroll - davecarrollno@gmail.com
 
-## 0.17 - 12-22-2016
+## 0.1.9 - 12-22-2016
+- BUG FIX: Added logic to ignore already linked file that was causing upgrade 
+  runs to fail with "file exists" error when using pip install gangliarest --upgrade
+
+## 0.1.8 - 12-22-2016
+- Added instruction to backup GanagliaRest.cfg file in /etc to preserve it
+  in cases up upgrades.
+
+## 0.1.7 - 12-22-2016
 - Added software version and updates check methods to recommend obtaining new 
   gangliarest releases when available. 
 - Added a scheduled manager responsible for running internal and user-configurable
   jobs such as Indexing and software update checking.
 - Set logging to INFO from DEBUG
 
-## 0.16 - 12-21-2016
+## 0.1.6 - 12-21-2016
 - Added Download_url and made changes to homepage location
 
-## 0.15 - 12-21-2016
+## 0.1.5 - 12-21-2016
 - Added download_url with background
 
-## 0.14 - 12-21-2016
+## 0.1.4 - 12-21-2016
 - Added cache prime operation on startup to improve performance and reliability 
 
-## 0.13 - 12-21-2016
+## 0.1.3 - 12-21-2016
 - Improved logging to catch Redis unavailable and provide hints on API request fail.
 
-## 0.12 - 12-21-2106 
+## 0.1.2 - 12-21-2106 
 - Removed web.py version requirement
 
-## 0.11 - 12-21-2016
+## 0.1.1 - 12-21-2016
 - Added updated README, and adjusted the Indexer for proper matching of node names.
 
-## 0.10 - 12-20-2016
+## 0.1.0 - 12-20-2016
 - Added base files, configs and created pypitest package.

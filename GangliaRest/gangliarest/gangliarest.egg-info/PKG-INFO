@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: gangliarest
-Version: 0.1.8
+Version: 0.1.9
 Summary: A ReSTFUL frontend to Ganglia exposing metrics via HTTP.
 Home-page: https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I
 Author: Dave Carroll
@@ -74,6 +74,21 @@ Description: GangliaRest
         
         GangliaRest should now be listening on port 8653 or whatever you selected in 
         /etc/GangliaRest.cfg.   
+        
+        Upgrading
+        ---------
+        GangliaRest will check on startup and once per day for any available upgrades.
+        These may include important bug fixes or enhancements so please consider upgrading
+        when you see a message in the logfile informing you of an upgrade. 
+        
+        To upgrade run the following commands:
+        system# service GangliaRest stop
+        system# pip install gangliarest --upgrade 
+        
+        The upgrader will copy your /etc/GangliaRest.cfg file as GangliaRest.cfg.save so you 
+        will not lose your changes. You can then merge those changes into the newly created 
+        GangliaRest.cfg file.
+        
         
         Usage
         -----
