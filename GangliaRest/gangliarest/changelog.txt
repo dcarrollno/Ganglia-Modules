@@ -1,0 +1,18 @@
+# gangliarest changelog
+# Dave Carroll - davecarrollno@gmail.com
+
+## 0.14 - 12-21-2016
+- Added cache prime operation on startup to improve performance and reliability 
+
+## 0.13 - 12-21-2016
+- Improved logging to catch Redis unavailable and provide hints on API request fail.
+
+## 0.12 - 12-21-2106 
+- Removed web.py version requirement
+
+## 0.11 - 12-21-2016
+- Added updated README, and adjusted the Indexer for proper matching of node names.
+
+## 0.10 - 12-20-2016
+
+- Added base files, configs and created pypitest package.

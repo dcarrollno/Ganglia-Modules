@@ -1,0 +1,94 @@
+#! /bin/bash
+#
+# GangliaRest:  Customized Ganglia Rest API
+#
+# chkconfig: - 90 60
+# description: GangliaRest - a Restful API for exposing Ganglia metrics
+# processname: GangliaRest
+# pidfile: /var/run/GangliaRest.pid
+# Source function library.
+
+. /etc/init.d/functions
+
+# chkconfig --add GangliaRest when done
+#
+# Dave Carroll davecarrollno@gmail.com
+# This service provides a RESTful API for access to Ganglia metrics.
+#
+
+RETVAL=0
+
+# See how we were called.
+
+prog="GangliaRest"
+PIDFILE="/var/run/GangliaRest.pid"
+GangliaRest="/usr/local/sbin/GangliaRest"
+DAEMON_USER="root"
+DAEMON_OPTS=""
+
+
+start() {
+	echo -n $"Starting $prog: "
+
+	/usr/local/sbin/GangliaRest 2>/dev/null &
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/GangliaRest
+    sleep 1
+    PID=`ps -ef | grep '[p]ython /usr/local/sbin/GangliaRest' | awk '{ print $2 }'`
+    echo $PID > $PIDFILE
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Stopping $prog: "
+	killproc GangliaRest 2>/dev/null
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/GangliaRest
+    rm -rf $PIDFILE
+	return $RETVAL
+}
+
+rhstatus() {
+	status GangliaRest
+}
+
+restart() {
+  	stop
+	start
+}
+
+reload() {
+	echo -n $"Reloading GangliaRest daemon configuration: "
+	killproc GangliaRest -HUP
+	retval=$?
+	echo
+	return $RETVAL
+}
+
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	restart
+	;;
+  reload)
+  	reload
+	;;
+  status)
+  	rhstatus
+	;;
+  condrestart)
+  	[ -f /var/lock/subsys/GangliaRest ] && restart || :
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|reload|restart|condrestart}"
+	exit 1
+esac
+
+exit $?

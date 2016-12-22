@@ -1,0 +1,3 @@
+gns3-netifaces
+web.py
+redis
