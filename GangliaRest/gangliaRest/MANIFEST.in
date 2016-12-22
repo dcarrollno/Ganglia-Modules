@@ -1,7 +1,0 @@
-include README.txt
-include LICENSE.txt
-include changelog.txt
-include docs/*.txt
-include requirements.txt
-include etc/*
-

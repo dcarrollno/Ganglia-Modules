@@ -1,3 +1,0 @@
-gns3-netifaces
-web.py>=0.38
-redis

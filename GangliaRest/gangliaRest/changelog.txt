@@ -1,7 +1,0 @@
-# gangliarest changelog
-
-## 0.1.0
-
-12-20-2016
-
-- Added base files, configs. 
