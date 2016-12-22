@@ -1,6 +1,13 @@
 # gangliarest changelog
 # Dave Carroll - davecarrollno@gmail.com
 
+## 0.17 - 12-22-2016
+- Added software version and updates check methods to recommend obtaining new 
+  gangliarest releases when available. 
+- Added a scheduled manager responsible for running internal and user-configurable
+  jobs such as Indexing and software update checking.
+- Set logging to INFO from DEBUG
+
 ## 0.16 - 12-21-2016
 - Added Download_url and made changes to homepage location
 
@@ -20,5 +27,4 @@
 - Added updated README, and adjusted the Indexer for proper matching of node names.
 
 ## 0.10 - 12-20-2016
-
 - Added base files, configs and created pypitest package.

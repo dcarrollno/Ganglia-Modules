@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: gangliarest
-Version: 0.1.6
+Version: 0.1.7
 Summary: A ReSTFUL frontend to Ganglia exposing metrics via HTTP.
 Home-page: https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I
 Author: Dave Carroll
@@ -91,7 +91,29 @@ Description: GangliaRest
         Indexer
         -------
         The indexer will run scanning your RRDtree for the purpose of caching filesystem locations
-        on a configurable basis. 
+        on a configurable basis. If it has not been run, it will prime the cache by running at start up 
+        and you will see logged entries such as:
+        
+        2016-12-22 10:36:32,999 - root - DEBUG Thread-140068063868672 - INFO: INDEXER: Running Indexer for first time
+        2016-12-22 10:36:33,000 - root - DEBUG Thread-140068063868672 - INFO: INDEXER starting scheduled operations...
+        2016-12-22 10:36:33,017 - root - DEBUG Thread-140068063868672 - INFO: INDEXER completed run...Added 14 entries to Redis
+        
+        The above indicates the indexer ran and added 14 nodes to the cache.  
+        
+        
+        Redis
+        -----
+        Once you have redis installed and have set the password both in /etc/GangliaRest and in
+        /etc/redis.conf, you can connect to Redis to examine the cached nodes that were indexed. 
+        To do this:
+        
+        root@gweb# redis-cli -a <your_password>
+        127.0.0.1:6379> select 1    # select DB instance 1 
+        OK
+        127.0.0.1:6379> keys *      # list all nodes by key
+        1) "web1"
+        2) "app1.example.com"
+        
         
         GangliaRest.cfg - Configuration
         -------------------------------
@@ -156,6 +178,16 @@ Description: GangliaRest
         The Indexer will also log its operations. The indexer checks every 60 seconds to see whether
         it needs to run an indexing operation, as configured by your indexFreq setting. The Indexer will
         log whether it needs to run or go back to sleep. 
+        
+        Upon start of GangliaRest a software update check is performed and notiifcation is logged if there
+        is a more recent update available. One may upgrade using: pip install gangliarest --upgrade. A 
+        logged message during the check appears as:
+        
+        2016-12-22 10:36:32,996 - root - DEBUG Thread-140068300097280 - Notice: The installed version of gangliarest is 0.1.6
+        
+        When an update has been detected at Pypi, a logged message will appear as:
+        
+        2016-12-22 10:33:00,582 - root - DEBUG Thread-140338108651264 - NOTICE: gangliarest-0.18 is available. Run 'pip install gangliarest --upgrade' to get the latest.
         
         
         

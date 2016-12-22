@@ -1,8 +1,15 @@
+########################################
 #
-# This file is part of gangliaRest
+# This file part of the gangliarest package
 #
-#  Dave Carroll - davecarrollno@gmail.com 2013
+# https://pypi.python.org/pypi/gangliarest
 #
+# https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I
+#
+# Dave Carroll - davecarrollno@gmail.com
+#
+########################################
+
 
 import ConfigParser
 import sys 

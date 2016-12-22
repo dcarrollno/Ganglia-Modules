@@ -27,8 +27,8 @@ def loglib(logfile,message):
     #logLevel = 'logging.'+cfg.logLevel
 
 
-    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s Thread-%(thread)d - %(message)s", filename=logfile)
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s Thread-%(thread)d - %(message)s", filename=logfile)
 
-    logging.debug(message)
+    logging.info(message)
 
     return()

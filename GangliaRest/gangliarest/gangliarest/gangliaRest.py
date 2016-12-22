@@ -1,16 +1,4 @@
-#!/usr/bin/env python
-
-########################################
-#
-# This file part of the gangliarest package
-#
-# https://pypi.python.org/pypi/gangliarest
-#
-# https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I
-#
-# Dave Carroll - davecarrollno@gmail.com
-#
-########################################
+#!/usr/bin/python
 
 import os
 import sys
@@ -25,6 +13,8 @@ import read_config as cfg
 from check_redis import Check_Redis_GangliaRest
 from loglib import loglib
 import indexer
+import update_notify
+
 
 ''' /* This module requires:
        easy_install web.py
@@ -59,6 +49,7 @@ class GangliaRest(object):
         loglib(cfg.logfile,"INFO: Started GangliaRest on IP %s and port %s" % (self.host,self.port))
 
 
+
     def printit(self):
 
         print("Listening on %s with port %s" % (self.host,self.port))
@@ -73,58 +64,114 @@ class Test(object):
 
 
 
-class BackgroundIndexer(object):
-    """ Threading example class
-    The run() method will be started and it will run in the background
-    until the application exits. """
+class GangliaRestScheduler(object):
+    ''' The GangliaRestScheduler is a background process that
+        will run user-defined jobs on an approximate schedule 
+        or handle internal operations such as sw update checking
+        and cache priming. '''
 
-    primed = False
+    primed = False		# default for cache primed
+    swupdate_checked = False    # default for sw update status
 
     def __init__(self, interval=60):
-        """ Constructor """
+        ''' The interval variable is not user defined ''' 
 
-        # Time in secs to check if time to index
-        self.interval = interval
 
-        thread = threading.Thread(target=self.run, args=())
+        self.__interval = interval
+        self.__swupdateFreq = 86400 
+
+        thread = threading.Thread(target=self.schedulerDaemon, args=())
         thread.daemon = True                            # Daemonize thread
         thread.start()                                  # Start the execution
 
-    def run(self):
-        """ Method that runs forever """
+
+    def runSwUpdate(self):
+        ''' This method checks periodically for new gangliarest releases '''
+
+        self.swupdate_now = time.time()
+        
+        ''' We want to check for new software releases on GangliaRest start up
+            but then, only once per day thereafter. We assume logrotate may
+            be configured to rotate daily on most systems so we hope our update
+            message appears and is caught in a daily log. '''
+
+        if not self.swupdate_checked: 
+            try:
+                sw_update = update_notify.CheckforUpdates('gangliarest')
+                check = sw_update.compareCheck() 
+                self.swupdate_checked = True
+                self.swupdate_last_check = time.time()
+            except:
+                # a sw update check failure is not fatal to operations
+                pass
+
+        if self.swupdate_last_check: 
+            self.swupdate_diff = self.swupdate_now - self.swupdate_last_check
+            if self.swupdate_diff > self.__swupdateFreq:
+                try:
+                    sw_update = update_notify.CheckforUpdates('gangliarest')
+                    check = sw_update.compareCheck()
+                    self.swupdate_checked = True
+                    self.swupdate_last_check = time.time()
+                except:
+                    # a sw update check failure is not fatal to operations
+                    pass
+
+
+
+    def runIndexer(self):
+        ''' This method is responsible for running the Indexer at both
+            internal and user-defined times. '''
+
+        self.indexer_now = time.time()
+       
+        # Primer 
+        if not self.primed:
+            loglib(cfg.logfile,"INFO: INDEXER: Running Indexer for first time to prime cache.")
+            try:
+                firstrun_indexer = indexer.GangliaIndexer()
+                firstrun_indexer.indexTimer()
+                self.indexer_last_check = time.time()
+                self.primed = True
+            except:
+                loglib(cfg.logfile,"ERROR: INDEXER failed to prime cache on first run.")
+                self.primed = False
+
+        try:
+            if self.indexer_last_check:
+                self.indexer_diff = self.indexer_now - self.indexer_last_check
+                if self.indexer_diff > cfg.indexFreq:
+                    loglib(cfg.logfile,"INFO: GangliaRest scheduler running Indexer on schedule. Starting indexing")
+                    run_indexer = indexer.GangliaIndexer()
+                    run_indexer.indexTimer()
+                    self.indexer_last_check = time.time() 
+                else:
+                    #print("Not time to run indexer")  # debug
+                    #loglib(cfg.logfile,"INFO: Timer indicates no need to run indexing. Sleeping for now")
+                    pass
+        except:
+            # Setting first marker
+            self.indexer_last_check = self.indexer_now
+
+
+
+    def schedulerDaemon(self):
+        ''' This method lists the scheduled jobs that need to be run. Add new methods
+            under this class and then list the calls here to have them run. By default
+            these jobs are checked every 60 secs to see if they meet criteria to run ''' 
 
         while True:
-            #print('Checking if time to run indexer')   #debug
-            self.now = time.time()
 
-            if not self.primed:
-                loglib(cfg.logfile,"INFO: INDEXER: Running Indexer for first time")
-                try:
-                    firstrun_indexer = indexer.GangliaIndexer()
-                    firstrun_indexer.indexTimer()
-                    self.last_check = time.time()
-                    self.primed = True
-                except:
-                    loglib(cfg.logfile,"ERROR: INDEXER failed to prime on first run.")
-                    self.primed = False
+            # See if time to run the Indexer - This may run to prime the cache 
+            # but is otherwise user-configurable in /etc/GangliaRest.cfg
+            self.runIndexer()
 
-            try:
-                if self.last_check:
-                    self.diff = self.now - self.last_check
-                    if self.diff > cfg.indexFreq:
-                        loglib(cfg.logfile,"INFO: Timer indicates indexer needs to run. Starting indexing")
-                        run_indexer = indexer.GangliaIndexer()
-                        run_indexer.indexTimer()
-                        self.last_check = time.time()  # reset last_check timer
-                    else:
-                        #print("Not time to run indexer")  # debug
-                        loglib(cfg.logfile,"INFO: Timer indicates no need to run indexing. Sleeping for now")
-                        #pass
-            except:
-                # Setting first marker 
-                self.last_check = self.now
-
-            time.sleep(self.interval)
+            # See if time to run software update check
+            self.runSwUpdate()
+               
+ 
+            # Scheduled jobs are listed above 
+            time.sleep(self.__interval)
 
 
 
@@ -235,6 +282,7 @@ class GetMetric(object):
 
 
 
+
 def set_exit_handler(func):
     signal.signal(signal.SIGTERM, func)
 
@@ -257,7 +305,7 @@ if __name__ == "__main__":
     set_exit_handler(on_exit)
 
     listenIp = get_Eth0()
- 
+
     cfg.readConfig()
-    backgroundIndexer = BackgroundIndexer()
+    jobs_scheduler = GangliaRestScheduler()
     gangliarest = GangliaRest(host=listenIp,port=8653)

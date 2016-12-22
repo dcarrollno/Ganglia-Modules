@@ -1,14 +1,9 @@
-########################################
 #
-# This file part of the gangliarest package
 #
-# https://pypi.python.org/pypi/gangliarest
+# This file is part of ganglia_tools
 #
-# https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I
+# Dave Carroll - davecarrollno@gmail.com 
 #
-# Dave Carroll - davecarrollno@gmail.com
-#
-########################################
 
 
 def loglib(logfile,message):
@@ -32,8 +27,8 @@ def loglib(logfile,message):
     #logLevel = 'logging.'+cfg.logLevel
 
 
-    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s Thread-%(thread)d - %(message)s", filename=logfile)
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s Thread-%(thread)d - %(message)s", filename=logfile)
 
-    logging.debug(message)
+    logging.info(message)
 
     return()

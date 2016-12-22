@@ -13,6 +13,7 @@ gangliarest/get_metric_value.py
 gangliarest/indexer.py
 gangliarest/loglib.py
 gangliarest/read_config.py
+gangliarest/update_notify.py
 gangliarest.egg-info/PKG-INFO
 gangliarest.egg-info/SOURCES.txt
 gangliarest.egg-info/dependency_links.txt

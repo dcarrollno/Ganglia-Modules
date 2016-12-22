@@ -33,7 +33,7 @@ class PostInstall(install):
 
 setup(
     name='gangliarest',
-    version='0.1.6',
+    version='0.1.7',
     author="Dave Carroll",
     author_email="davecarrollno@gmail.com",
     description=("A ReSTFUL frontend to Ganglia exposing metrics via HTTP."),
@@ -51,7 +51,7 @@ setup(
         'Programming Language :: Python :: 2.7', 
         'Operating System :: POSIX :: Linux',
     ],
-    install_requires=["gns3-netifaces","web.py","redis"],
+    install_requires=["gns3-netifaces","web.py","redis","packaging"],
     include_package_data=True,
     data_files=[
         ('/etc/', ['etc/GangliaRest.cfg']),

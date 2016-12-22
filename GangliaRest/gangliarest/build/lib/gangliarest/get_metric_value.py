@@ -1,9 +1,15 @@
+########################################
 #
-# This file is part of gangliarest
+# This file part of the gangliarest package
 #
-# Dave C. - davecarrollno@gmail.com 
+# https://pypi.python.org/pypi/gangliarest
 #
+# https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I
 #
+# Dave Carroll - davecarrollno@gmail.com
+#
+########################################
+
 
 import os,sys,re
 from subprocess import Popen,PIPE,STDOUT
