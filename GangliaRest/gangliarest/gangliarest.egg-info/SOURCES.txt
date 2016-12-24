@@ -4,6 +4,9 @@ README.txt
 changelog.txt
 requirements.txt
 setup.py
+EXTRAS/README.txt
+EXTRAS/com.gangliarest.plist
+EXTRAS/osx_notifier.py
 etc/GangliaRest
 etc/GangliaRest.cfg
 gangliarest/__init__.py

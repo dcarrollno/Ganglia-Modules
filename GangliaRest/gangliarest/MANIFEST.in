@@ -2,6 +2,7 @@ include README.txt
 include LICENSE.txt
 include changelog.txt
 include docs/*.txt
+include EXTRAS/*
 include requirements.txt
 include etc/*
 include sbin/*

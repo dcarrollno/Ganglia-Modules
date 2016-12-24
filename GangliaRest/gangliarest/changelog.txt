@@ -1,6 +1,9 @@
 # gangliarest changelog
 # Dave Carroll - davecarrollno@gmail.com
 
+## 0.1.10 - 12-24-2016
+- Added EXTRAS folder with example osx desktop notifier that works with GangliaRest
+
 ## 0.1.9 - 12-22-2016
 - BUG FIX: Added logic to ignore already linked file that was causing upgrade 
   runs to fail with "file exists" error when using pip install gangliarest --upgrade
