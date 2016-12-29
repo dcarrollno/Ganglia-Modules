@@ -1,0 +1,8 @@
+# ganglia-dyngraph changelog
+# Dave Carroll - davecarrollno@gmail.com
+
+## 0.1.2 - 12-28-2016
+- Added README and testing on pypitest
+
+## 0.1.1 - 12-24-2016
+- Created initial package and removed company-specific custom funcitons and classes 
