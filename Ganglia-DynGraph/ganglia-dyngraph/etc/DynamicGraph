@@ -8,6 +8,9 @@
 # pidfile: /var/run/DynamicGraph.pid
 # Source function library.
 
+#
+#  https://github.com/dcarrollno/Ganglia-Modules/wiki/DynamicGraph:-ganglia-dyngraph
+
 . /etc/init.d/functions
 
 # chkconfig --add DynamicGraph when done

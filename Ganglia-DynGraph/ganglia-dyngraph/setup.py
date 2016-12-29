@@ -50,7 +50,7 @@ setup(
     author_email="davecarrollno@gmail.com",
     description=("A daemon to dynamically create and purge Ganglia graphs."),
     keywords = "Ganglia dynamic graphs metrics", 
-    url="https://github.com/dcarrollno/Ganglia-Modules/wiki/Overview:-Ganglia-Dynamic-Metrics%3F",
+    url="https://github.com/dcarrollno/Ganglia-Modules/wiki/DynamicGraph:-ganglia-dyngraph",
     download_url="https://github.com/dcarrollno/Ganglia-Modules/tree/master/Ganglia-DynGraph/ganglia-dyngraph",
     packages=['ganglia-dyngraph'],
     long_description=open('README.txt').read(),

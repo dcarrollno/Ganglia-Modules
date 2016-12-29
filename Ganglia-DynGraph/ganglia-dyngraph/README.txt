@@ -31,6 +31,8 @@ in .json format under your Ganglia Gweb tree.
 I have removed some custom functions and classes that are unique to my work environment but
 have reworked the core modules into this package so others can use them or improve upon them.
 
+More Info: https://github.com/dcarrollno/Ganglia-Modules/wiki/DynamicGraph:-ganglia-dyngraph
+
 
 Core Requirements:
 ------------------

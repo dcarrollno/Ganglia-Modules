@@ -2,7 +2,7 @@ Metadata-Version: 1.0
 Name: ganglia-dyngraph
 Version: 0.1.2
 Summary: A daemon to dynamically create and purge Ganglia graphs.
-Home-page: https://github.com/dcarrollno/Ganglia-Modules/wiki/Overview:-Ganglia-Dynamic-Metrics%3F
+Home-page: https://github.com/dcarrollno/Ganglia-Modules/wiki/DynamicGraph:-ganglia-dyngraph
 Author: Dave Carroll
 Author-email: davecarrollno@gmail.com
 License: UNKNOWN
