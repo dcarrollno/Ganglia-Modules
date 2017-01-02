@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: gangliarest
-Version: 0.1.10
+Version: 0.1.11
 Summary: A ReSTFUL frontend to Ganglia exposing metrics via HTTP.
 Home-page: https://github.com/dcarrollno/Ganglia-Modules/wiki/GangliaRest-API:-Part-I
 Author: Dave Carroll

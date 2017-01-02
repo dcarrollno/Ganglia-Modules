@@ -45,7 +45,7 @@ class PostInstall(install):
 
 setup(
     name='gangliarest',
-    version='0.1.10',
+    version='0.1.11',
     author="Dave Carroll",
     author_email="davecarrollno@gmail.com",
     description=("A ReSTFUL frontend to Ganglia exposing metrics via HTTP."),

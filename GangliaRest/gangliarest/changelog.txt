@@ -1,6 +1,10 @@
 # gangliarest changelog
 # Dave Carroll - davecarrollno@gmail.com
 
+## 0.1.11 - 1-2-2016
+- Updated cfg file and logic to include defining your redis.conf location and name
+- Added redis pid check in init with warning if not found
+
 ## 0.1.10 - 12-24-2016
 - Added EXTRAS folder with example osx desktop notifier that works with GangliaRest
 

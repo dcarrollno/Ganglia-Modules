@@ -22,14 +22,18 @@ RETVAL=0
 
 prog="GangliaRest"
 PIDFILE="/var/run/GangliaRest.pid"
+REDISPID="/var/run/redis/redis.pid"
 GangliaRest="/usr/local/sbin/GangliaRest"
 DAEMON_USER="root"
 DAEMON_OPTS=""
 
 
 start() {
+        if [ ! -f $REDISPID ]; then
+            echo "No redis pid in /var/run/redis. Is Redis running?"
+            exit 1
+        fi
 	echo -n $"Starting $prog: "
-
 	/usr/local/sbin/GangliaRest 2>/dev/null &
 	RETVAL=$?
 	echo
