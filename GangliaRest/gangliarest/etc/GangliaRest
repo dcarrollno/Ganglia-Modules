@@ -30,8 +30,7 @@ DAEMON_OPTS=""
 
 start() {
         if [ ! -f $REDISPID ]; then
-            echo "No redis pid in /var/run/redis. Is Redis running?"
-            exit 1
+            echo "WARNING: No redis pid in /var/run/redis. Is Redis running?"
         fi
 	echo -n $"Starting $prog: "
 	/usr/local/sbin/GangliaRest 2>/dev/null &

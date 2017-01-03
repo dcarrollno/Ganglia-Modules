@@ -16,10 +16,10 @@ import sys
 import re
 
 
-redis_conf_file = '/etc/redis.conf'
+#redisConf = '/etc/redis.conf'
 
 def get_redis_auth():
-    with open(redis_conf_file, 'r') as f:
+    with open(redisConf, 'r') as f:
         for line in f:
             if line.startswith('requirepass'):
                 (label,pw) = line.split()
@@ -34,12 +34,13 @@ def readConfig():
 
 
     global Config,redisHost,redisAuth,redisPort,redisDb,logfile,rrdDir,restPort, \
-           restHost,domain,indexFreq,redisTtl,logLevel,statsFile
+           restHost,domain,indexFreq,redisTtl,logLevel,statsFile,redisConf
 
 
     Config = ConfigParser.ConfigParser()
     Config.read("/etc/GangliaRest.cfg")
 
+    redisConf = Config.get('Redis','redisConf')
     restHost = Config.get('Globals','restHost')
     restPort = Config.get('Globals','restPort')
     restPort = int(restPort)
@@ -65,4 +66,5 @@ def readConfig():
 if __name__ == "__main__":
 
     readConfig()
+    get_redis_auth()
     print(logLevel)

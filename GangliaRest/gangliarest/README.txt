@@ -48,6 +48,7 @@ The module will be installed into /usr/lib/python2.x/site-packages/gangliarest.
 The configuration file will be installed as /etc/GangliaRest.cfg
 The init script will be installed as /etc/init.d/GangliaRest
 
+You will want to adjust /etc/init.d/GangliaRest if you run Redis on a different port
 You will want to chkconfig add GangliaRest to start at run level 3.
 You will want to adjust your iptables accordingly.
 You will want to visit /etc/GangliaRest.cfg and adjust your config file.
@@ -61,7 +62,9 @@ Edit your /etc/redis.conf file and set the requirepass to a password you prefer.
 Run service redis start and chkconfig that accordingly.   
 
 Run service GangliaRest start when you are ready.  A pid file will be dropped in as
-/var/run/GangliaRest.pid.
+/var/run/GangliaRest.pid. You will receive a warning if a valid Redis pidfile was not
+detected in /var/run/redis/redis.pid. If you run multiple Redis instances, adjust 
+accordingly.  
 
 GangliaRest should now be listening on port 8653 or whatever you selected in 
 /etc/GangliaRest.cfg.   
