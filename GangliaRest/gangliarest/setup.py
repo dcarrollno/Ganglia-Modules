@@ -63,7 +63,11 @@ setup(
         'Programming Language :: Python :: 2.7', 
         'Operating System :: POSIX :: Linux',
     ],
-    install_requires=["gns3-netifaces","web.py","redis","packaging","requests"],
+    install_requires=["gns3-netifaces",
+                      "web.py",
+                      "redis<=2.10.5",
+                      "packaging",
+                      "requests<=2.12.4"],
     include_package_data=True,
     data_files=[
         ('/etc/', ['etc/GangliaRest.cfg']),
