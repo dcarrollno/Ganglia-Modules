@@ -1,0 +1,97 @@
+# Ganglia HAProxy module
+# - Dave Carroll 2016
+#
+# removed erb tags from Puppet deployment and cleaned up for sharing
+#
+# We define each HAProxy farm of servers in a clusters param. These are defined in haproxy.cfg. 
+# We then define a list of servers in each farm, in an additional param. Using good naming schemes
+# is important. I suffix each cluster name with -nodes. 
+
+modules {
+  module {
+    name = "nan_haproxy"
+    language = "python"
+    param RefreshRate {
+        value = 15
+    }
+    param cache {
+        value = 10
+    }
+    param clusters {
+      value = "webserver-nodes, app-server-nodes, api-endpoint-nodes"
+    }
+
+    param webserver-nodes {
+        value = "web1, web2, web3"
+    }
+    param app-server-nodes {
+        value = "app1, app2, app3"
+    }
+    param api-endpoint-nodes {
+        value = "api1, api2, api3"
+    }
+    param interestingItems {
+        value = "scur,bin,bout,dreq,ereq,econ,eresp,chkfail,rate,"
+    }
+    param socketDir {
+        value = '/var/lib/haproxy/'
+    }
+    param metric_group {
+        value = 'haproxy'
+    }
+   }
+  }
+
+
+# // We use name-match to collect metrics related to what we list in our interestingItems list above
+
+collection_group {
+    collect_every = 30
+    time_threshold = 60
+
+metric {
+    name_match = "(.*).scur"
+    title = "Current Sessions"
+    value_threshold = 0
+    }
+metric {
+    name_match = "(.*).bin"
+    title = "Bytes In"
+    value_threshold = 0
+    }
+metric {
+    name_match = "(.*).bout"
+    title = "Bytes Out"
+    value_threshold = 0
+    }
+metric {
+   name_match = "(.*).econ"
+   title = "Connect Errors"
+   value_threshold = 0
+   }
+metric {
+   name_match = "(.*).eresp"
+   title = "Response Errors"
+   value_threshold = 0
+   }
+metric {
+   name_match = "(.*).chkfail"
+   title = "Check Fails"
+   value_threshold = 0
+   }
+metric {
+   name_match = "(.*).dreq"
+   title = "Denied Errors"
+   value_threshold = 0
+   }
+metric {
+   name_match = "(.*).rate"
+   title = "Rate of Requests"
+   value_threshold = 0
+   }
+metric {
+   name_match = "(.*).ereq"
+   title = "Request Errors"
+   value_threshold = 0
+   }
+}

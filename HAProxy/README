@@ -1,0 +1,41 @@
+HAProxy Ganglia Metric Module
+
+python module for Ganglia 3.1 running under CentOS 6.x or CentOS 7.x
+
+This python module calls each of the HAProxy stats sockets and collects a
+defined list of interesting metrics. We then prefer to sum those metrics up
+and display them in Ganglia rather than viewing 8 or more HAProxy stats pages. 
+
+This module threads out the collector to allow smoother operations for gmond
+and avoids impact to other modules.
+
+You must yum install socat onto your HAProxy system. 
+
+There are a few edits to configure this for your own use. First, in the pyconf define
+the farms or clusters of servers you have running, in a list format like so:
+param clusters {
+    value = "webservers-nodes, appserver-nodes"
+}
+
+You then define the cluster members for each like so:
+param webserver-nodes {
+    value = "web1, web2, web3"
+}
+param appserver-node {
+    value = "app1, app2, app3"
+}
+
+You can define metrics you want to collect like:
+param interestingItems {
+    value = "scur,bin,bout,dreq,ereq,econ,eresp,chkfail,rate,"
+}
+
+
+Then, on the actual haproxy.py module you can define the same (see examples) 
+under __name__=='__main__' for testing and debugging.
+
+This can no doubt be improved so feel free to do so.
+
+Author
+Dave Carroll
+dcarrollno@gmail.com
