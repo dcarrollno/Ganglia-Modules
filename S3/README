@@ -1,0 +1,2 @@
+This is a quick module to poll S3 buckets at AWS for sizing in bytes.
+This will be reported back into Ganglia.  Adjust to your liking.

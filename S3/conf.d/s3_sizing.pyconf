@@ -1,0 +1,27 @@
+# // S3 Sizing for Ganglia
+# Dave Carroll 2016
+#
+
+modules {
+  module {
+    name     = 's3sizing'
+    language = 'python'
+
+    param metric_group {
+      value = 'AWS_S3'
+   }
+    param aws_profile {
+      value = 'IT'
+   }
+
+  }
+}
+
+collection_group {
+  collect_every  = 3600
+  time_threshold = 3700
+
+  metric {
+    name_match = "aws_S3_(.+)"
+  }
+}
